@@ -1,6 +1,7 @@
 package myfitnesspal.command;
 
-import myfitnesspal.WaterTracker;
+import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.WaterIntake;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -8,11 +9,11 @@ import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class DrinkWaterCommand implements Command {
-    private final WaterTracker tracker;
+    private final MyFitnessTracker tracker;
     private final Scanner scanner;
     private final String fileName;
 
-    public DrinkWaterCommand(WaterTracker tracker, Scanner scanner, String fileName) {
+    public DrinkWaterCommand(MyFitnessTracker tracker, Scanner scanner, String fileName) {
         this.tracker = tracker;
         this.scanner = scanner;
         this.fileName = fileName;
@@ -25,7 +26,7 @@ public class DrinkWaterCommand implements Command {
 
         LocalDate date = parseDate(rawDate);
         if (date == null) {
-            System.out.println("Invalid data: " + rawDate);
+            System.out.println("Invalid date: " + rawDate);
             return;
         }
 
@@ -39,24 +40,25 @@ public class DrinkWaterCommand implements Command {
             return;
         }
 
-        tracker.addIntake(date, amount);
-        tracker.saveDataToFile(fileName);
-        System.out.println(">ok");
+        WaterIntake waterIntake = new WaterIntake(date, amount);
+        tracker.addItem(waterIntake);
+
+        tracker.save(fileName);
+
+        System.out.println(">Water intake recorded successfully!");
     }
 
     private LocalDate parseDate(String dateStr) {
-        DateTimeFormatter[] possibleFormats = new DateTimeFormatter[] {
+        DateTimeFormatter[] formats = {
                 DateTimeFormatter.ofPattern("yyyy/MM/dd"),
                 DateTimeFormatter.ofPattern("dd.MM.yyyy"),
                 DateTimeFormatter.ISO_LOCAL_DATE
         };
 
-        for (DateTimeFormatter formatter : possibleFormats) {
+        for (DateTimeFormatter fmt : formats) {
             try {
-                return LocalDate.parse(dateStr, formatter);
-            } catch (DateTimeParseException e) {
-
-            }
+                return LocalDate.parse(dateStr, fmt);
+            } catch (DateTimeParseException ignored) {}
         }
         return null;
     }

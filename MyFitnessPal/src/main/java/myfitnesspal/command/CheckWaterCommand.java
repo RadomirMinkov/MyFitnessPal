@@ -1,19 +1,18 @@
 package myfitnesspal.command;
 
+import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.WaterIntake;
-import myfitnesspal.WaterTracker;
+import myfitnesspal.utility.Parser;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
 public class CheckWaterCommand implements Command {
-    private final WaterTracker tracker;
+    private final MyFitnessTracker tracker;
     private final Scanner scanner;
 
-    public CheckWaterCommand(WaterTracker tracker, Scanner scanner) {
+    public CheckWaterCommand(MyFitnessTracker tracker, Scanner scanner) {
         this.tracker = tracker;
         this.scanner = scanner;
     }
@@ -23,37 +22,25 @@ public class CheckWaterCommand implements Command {
         System.out.print(">When? -");
         String rawDate = scanner.nextLine();
 
-        LocalDate date = parseDate(rawDate);
+        LocalDate date = Parser.parseDate(rawDate);
         if (date == null) {
-            System.out.println("Invalid data: " + rawDate);
+            System.out.println("Invalid date: " + rawDate);
             return;
         }
 
-        List<WaterIntake> intakesForDate = tracker.getIntakesForDate(date);
-        if (intakesForDate.isEmpty()) {
-            System.out.println(rawDate + ": No written data.");
+        List<WaterIntake> allWater = tracker.getWaterIntakes();
+        List<WaterIntake> sameDate = allWater.stream()
+                .filter(w -> w.date().equals(date))
+                .toList();
+
+        if (sameDate.isEmpty()) {
+            System.out.println(rawDate + ": No water intake recorded.");
         } else {
             System.out.println(rawDate + ":");
-            for (WaterIntake waterIntake : intakesForDate) {
-                System.out.println("->" + waterIntake.amount() + "ml");
+            for (WaterIntake wi : sameDate) {
+                System.out.println("-> " + wi.amount() + " ml");
             }
         }
     }
 
-    private LocalDate parseDate(String dateStr) {
-        DateTimeFormatter[] possibleFormats = new DateTimeFormatter[] {
-                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
-                DateTimeFormatter.ofPattern("dd.MM.yyyy"),
-                DateTimeFormatter.ISO_LOCAL_DATE
-        };
-
-        for (DateTimeFormatter formatter : possibleFormats) {
-            try {
-                return LocalDate.parse(dateStr, formatter);
-            } catch (DateTimeParseException e) {
-
-            }
-        }
-        return null;
-    }
 }

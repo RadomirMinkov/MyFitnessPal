@@ -48,7 +48,7 @@ public class Parser {
         return new WaterIntake(date, amount);
     }
 
-    private static LocalDate parseDate(String dateStr) {
+    public static LocalDate parseDate(String dateStr) {
         DateTimeFormatter[] formats = {
                 DateTimeFormatter.ofPattern("yyyy/MM/dd"),
                 DateTimeFormatter.ofPattern("dd.MM.yyyy"),
