@@ -1,65 +1,78 @@
 package myfitnesspal.command;
 
+import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.WaterIntake;
-import myfitnesspal.WaterTracker;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.time.LocalDate;
+import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CheckWaterCommandTest {
+class CheckWaterCommandTest {
 
-    private final PrintStream originalOut = System.out;
-    private ByteArrayOutputStream testOut;
+    private MyFitnessTracker tracker;
 
     @BeforeEach
     void setUp() {
-        testOut = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(testOut));
-    }
-
-    @AfterEach
-    void tearDown() {
-        System.setOut(originalOut);
+        tracker = new MyFitnessTracker();
+        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3, 12), 250));
+        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3, 12), 500));
+        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3, 13), 300));
     }
 
     @Test
-    void testCheckWaterInvalidDate() {
-        String input = "abc\n";
-        ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-        WaterTracker tracker = new WaterTracker();
-        CheckWaterCommand command = new CheckWaterCommand(tracker, new java.util.Scanner(in));
-        command.execute();
-        String consoleOutput = testOut.toString();
-        assertTrue(consoleOutput.contains("Invalid data: abc"));
+    @DisplayName("Test checking water for a known date")
+    void testExecuteFound() {
+        String input = "2025-03-12\n";
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        PrintStream ps = new PrintStream(out);
+        Scanner scanner = new Scanner(in);
+
+        CheckWaterCommand cmd = new CheckWaterCommand(tracker, scanner);
+
+        PrintStream oldOut = System.out;
+        System.setOut(ps);
+
+        cmd.execute();
+
+        System.setOut(oldOut);
+
+        String consoleOutput = out.toString();
+        assertTrue(consoleOutput.contains("2025-03-12:"),
+                "Should print the date header");
+        assertTrue(consoleOutput.contains("-> 250 ml"),
+                "Should list the 250 ml entry");
+        assertTrue(consoleOutput.contains("-> 500 ml"),
+                "Should list the 500 ml entry");
     }
 
     @Test
-    void testCheckWaterNoData() {
-        String input = "2025-03-04\n";
-        ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-        WaterTracker tracker = new WaterTracker();
-        CheckWaterCommand command = new CheckWaterCommand(tracker, new java.util.Scanner(in));
-        command.execute();
-        String consoleOutput = testOut.toString();
-        assertTrue(consoleOutput.contains("No written data."));
-    }
+    @DisplayName("Test checking water for a date with no records")
+    void testExecuteNotFound() {
+        String input = "2025-03-14\n";
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    @Test
-    void testCheckWaterWithData() {
-        String input = "2025-03-04\n";
-        ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-        WaterTracker tracker = new WaterTracker();
-        tracker.addIntake(LocalDate.of(2025, 3, 4), 250);
-        CheckWaterCommand command = new CheckWaterCommand(tracker, new java.util.Scanner(in));
-        command.execute();
-        String consoleOutput = testOut.toString();
-        assertTrue(consoleOutput.contains("->250ml"));
+        PrintStream ps = new PrintStream(out);
+        Scanner scanner = new Scanner(in);
+
+        CheckWaterCommand cmd = new CheckWaterCommand(tracker, scanner);
+
+        PrintStream oldOut = System.out;
+        System.setOut(ps);
+
+        cmd.execute();
+
+        System.setOut(oldOut);
+
+        String consoleOutput = out.toString();
+        assertTrue(consoleOutput.contains("No water intake recorded."),
+                "Should print message indicating no records for that date");
     }
 }

@@ -2,6 +2,7 @@ package myfitnesspal.command;
 
 import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.WaterIntake;
+import myfitnesspal.utility.Parser;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +25,7 @@ public class DrinkWaterCommand implements Command {
         System.out.print(">When? -");
         String rawDate = scanner.nextLine();
 
-        LocalDate date = parseDate(rawDate);
+        LocalDate date = Parser.parseDate(rawDate);
         if (date == null) {
             System.out.println("Invalid date: " + rawDate);
             return;
@@ -48,18 +49,4 @@ public class DrinkWaterCommand implements Command {
         System.out.println(">Water intake recorded successfully!");
     }
 
-    private LocalDate parseDate(String dateStr) {
-        DateTimeFormatter[] formats = {
-                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
-                DateTimeFormatter.ofPattern("dd.MM.yyyy"),
-                DateTimeFormatter.ISO_LOCAL_DATE
-        };
-
-        for (DateTimeFormatter fmt : formats) {
-            try {
-                return LocalDate.parse(dateStr, fmt);
-            } catch (DateTimeParseException ignored) {}
-        }
-        return null;
-    }
 }
