@@ -2,6 +2,7 @@ package myfitnesspal.command;
 
 import myfitnesspal.Food;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.utility.InputReader;
 
 import java.util.Scanner;
 
@@ -9,11 +10,13 @@ public class CreateFoodCommand implements Command {
     private final MyFitnessTracker tracker;
     private final Scanner scanner;
     private final String fileName;
+    private final InputReader inputReader;
 
     public CreateFoodCommand(MyFitnessTracker tracker, Scanner scanner, String fileName) {
         this.tracker = tracker;
         this.scanner = scanner;
         this.fileName = fileName;
+        this.inputReader = new InputReader(scanner);
     }
 
     @Override
@@ -27,23 +30,23 @@ public class CreateFoodCommand implements Command {
         String description = scanner.nextLine();
 
         System.out.print(">Serving Size (g):\n-");
-        double servingSize = readDouble();
+        double servingSize = inputReader.readDouble();
 
         System.out.print(">Servings per container:\n-");
-        int servings = readInt();
+        int servings = inputReader.readInt();
 
         System.out.print(">Amount per serving:");
         System.out.print("\n>Calories (kcal):\n-");
-        double calories = readDouble();
+        double calories = inputReader.readDouble();
 
         System.out.print(">Carbs (g):\n-");
-        double carbs = readDouble();
+        double carbs = inputReader.readDouble();
 
         System.out.print(">Fat (g):\n-");
-        double fat = readDouble();
+        double fat = inputReader.readDouble();
 
         System.out.print(">Protein (g):\n-");
-        double protein = readDouble();
+        double protein = inputReader.readDouble();
 
         Food newFood = new Food(name, description, servingSize, servings,
                 calories, carbs, fat, protein);
@@ -54,25 +57,4 @@ public class CreateFoodCommand implements Command {
         System.out.println(">Food created successfully!");
     }
 
-    private double readDouble() {
-        while (true) {
-            String input = scanner.nextLine();
-            try {
-                return Double.parseDouble(input);
-            } catch (NumberFormatException e) {
-                System.out.print("Invalid number, try again:\n-");
-            }
-        }
-    }
-
-    private int readInt() {
-        while (true) {
-            String input = scanner.nextLine();
-            try {
-                return Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.print("Invalid integer, try again:\n-");
-            }
-        }
-    }
 }
