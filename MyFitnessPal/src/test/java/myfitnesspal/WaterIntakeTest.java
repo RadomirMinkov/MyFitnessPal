@@ -1,26 +1,31 @@
 package myfitnesspal;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class WaterIntakeTest {
 
     @Test
-    @DisplayName("Test WaterIntake creation and toFileString")
-    void testWaterIntakeCreation() {
-        LocalDate date = LocalDate.of(2025, 3, 12);
-        WaterIntake waterIntake = new WaterIntake(date, 500);
+    void testRecordFields() {
+        WaterIntake wi = new WaterIntake(LocalDate.of(2025, 3, 19), 1000);
+        Assertions.assertEquals(LocalDate.of(2025, 3, 19), wi.date());
+        Assertions.assertEquals(1000, wi.amount());
+    }
 
-        assertEquals(date, waterIntake.date());
-        assertEquals(500, waterIntake.amount());
+    @Test
+    void testToFileString() {
+        WaterIntake wi = new WaterIntake(LocalDate.of(2025, 3, 19), 500);
+        String expected = "WATER;2025-03-19;500";
+        Assertions.assertEquals(expected, wi.toFileString());
+    }
 
-        String fileStr = waterIntake.toFileString();
-        assertTrue(fileStr.startsWith("WATER;"), "File string must start with WATER;");
-        String[] parts = fileStr.split(";");
-        assertEquals(3, parts.length, "WATER;date;amount => 3 parts total");
+    @Test
+    void testToString() {
+        WaterIntake wi = new WaterIntake(LocalDate.of(2025, 3, 19), 500);
+        String s = wi.toString();
+        Assertions.assertTrue(s.contains("2025-03-19"));
+        Assertions.assertTrue(s.contains("500 ml"));
     }
 }

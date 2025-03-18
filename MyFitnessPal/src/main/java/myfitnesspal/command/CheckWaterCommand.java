@@ -23,10 +23,6 @@ public class CheckWaterCommand implements Command {
         String rawDate = scanner.nextLine();
 
         LocalDate date = Parser.parseDate(rawDate);
-        if (date == null) {
-            System.out.println("Invalid date: " + rawDate);
-            return;
-        }
 
         List<WaterIntake> allWater = tracker.getWaterIntakes();
         List<WaterIntake> sameDate = allWater.stream()

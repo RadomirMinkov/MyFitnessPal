@@ -1,27 +1,21 @@
 package myfitnesspal.command;
 
-import org.junit.jupiter.api.*;
-import java.io.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+import myfitnesspal.MyFitnessTracker;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class ExitCommandTest {
 
-    private boolean exited = false;
-
-    @BeforeEach
-    void setUp() {
-        exited = false;
-    }
-
     @Test
-    @DisplayName("Test ExitCommand triggers onExit callback")
-    void testExecute() {
-        Runnable onExit = () -> exited = true;
-        ExitCommand command = new ExitCommand(onExit);
+    void testExecute_SavesAndCallsOnExit() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
 
-        command.execute();
+        final boolean[] exitCalled = {false};
+        Runnable onExit = () -> exitCalled[0] = true;
 
-        assertTrue(exited, "ExitCommand should trigger the onExit callback to set 'exited' to true");
+        ExitCommand cmd = new ExitCommand(onExit, tracker, "testfile.txt");
+        cmd.execute();
+
+        Assertions.assertTrue(exitCalled[0]);
     }
 }

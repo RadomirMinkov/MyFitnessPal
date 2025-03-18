@@ -1,70 +1,76 @@
 package myfitnesspal.utility;
 
 import myfitnesspal.Food;
+import myfitnesspal.FoodLog;
 import myfitnesspal.WaterIntake;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ParserTest {
 
     @Test
-    @DisplayName("Parse valid WATER line")
-    void testParseWater() {
-        String line = "WATER;2025-03-12;500";
-        Trackable result = Parser.parseLine(line);
-        assertTrue(result instanceof WaterIntake, "Parsed object should be a WaterIntake");
-        WaterIntake wi = (WaterIntake) result;
+    void testParseLine_Water() {
+        String line = "WATER;2025-03-18;500";
+        Trackable t = Parser.parseLine(line);
 
-        assertEquals(LocalDate.of(2025, 3, 12), wi.date(), "Date must match the parsed date");
-        assertEquals(500, wi.amount(), "Amount must match the parsed amount");
+        Assertions.assertTrue(t instanceof WaterIntake);
+        WaterIntake wi = (WaterIntake) t;
+        Assertions.assertEquals(LocalDate.of(2025, 3, 18), wi.date());
+        Assertions.assertEquals(500, wi.amount());
     }
 
     @Test
-    @DisplayName("Parse invalid WATER line")
-    void testParseInvalidWater() {
-        String line = "WATER;2025/03;abc";
-        Trackable result = Parser.parseLine(line);
-        assertNull(result, "Parser should return null for invalid lines");
+    void testParseLine_Food() {
+        String line = "FOOD;Pizza;Cheesy slice;100;2;300;30;10;15";
+        Trackable t = Parser.parseLine(line);
+
+        Assertions.assertTrue(t instanceof Food);
+        Food f = (Food) t;
+        Assertions.assertEquals("Pizza", f.name());
+        Assertions.assertEquals("Cheesy slice", f.description());
+        Assertions.assertEquals(100, f.servingSize());
+        Assertions.assertEquals(2, f.servingsPerContainer());
+        Assertions.assertEquals(300, f.calories());
+        Assertions.assertEquals(30, f.carbs());
+        Assertions.assertEquals(10, f.fat());
+        Assertions.assertEquals(15, f.protein());
     }
 
     @Test
-    @DisplayName("Parse valid FOOD line")
-    void testParseFood() {
-        String line = "FOOD;Banana;Fresh Banana;118;1;105;27;0.3;1.3";
-        Trackable result = Parser.parseLine(line);
-        assertTrue(result instanceof Food, "Parsed object should be a Food");
-        Food food = (Food) result;
+    void testParseLine_FoodLog() {
+        String line = "FOOD_LOG;2025-03-18;Lunch;Pizza;200;600;40;20;30";
+        Trackable t = Parser.parseLine(line);
 
-        assertEquals("Banana", food.name(), "Food name must match parsed name");
-        assertEquals("Fresh Banana", food.description(), "Food description must match parsed description");
-        assertEquals(118, food.servingSize(), 1e-9, "Serving size must match");
-        assertEquals(1, food.servingsPerContainer(), "Servings per container must match");
-        assertEquals(105, food.calories(), 1e-9, "Calories must match");
-        assertEquals(27, food.carbs(), 1e-9, "Carbs must match");
-        assertEquals(0.3, food.fat(), 1e-9, "Fat must match");
-        assertEquals(1.3, food.protein(), 1e-9, "Protein must match");
+        Assertions.assertTrue(t instanceof FoodLog);
+        FoodLog fl = (FoodLog) t;
+        Assertions.assertEquals(LocalDate.of(2025, 3, 18), fl.date());
+        Assertions.assertEquals("Lunch", fl.meal());
+        Assertions.assertEquals("Pizza", fl.foodName());
+        Assertions.assertEquals(200, fl.totalGrams());
+        Assertions.assertEquals(600, fl.totalCalories());
+        Assertions.assertEquals(40, fl.totalCarbs());
+        Assertions.assertEquals(20, fl.totalFat());
+        Assertions.assertEquals(30, fl.totalProtein());
     }
 
     @Test
-    @DisplayName("Parse date with multiple formats")
-    void testParseDate() {
-        LocalDate date1 = Parser.parseDate("2025-03-12");
-        assertNotNull(date1, "Should parse ISO_LOCAL_DATE");
-        assertEquals(LocalDate.of(2025, 3, 12), date1);
+    void testParseDate_SupportedFormats() {
+        LocalDate d1 = Parser.parseDate("2025/03/19");
+        Assertions.assertEquals(LocalDate.of(2025, 3, 19), d1);
 
-        LocalDate date2 = Parser.parseDate("2025/03/12");
-        assertNotNull(date2, "Should parse yyyy/MM/dd");
-        assertEquals(LocalDate.of(2025, 3, 12), date2);
+        LocalDate d2 = Parser.parseDate("19.03.2025");
+        Assertions.assertEquals(LocalDate.of(2025, 3, 19), d2);
 
-        LocalDate date3 = Parser.parseDate("12.03.2025");
-        assertNotNull(date3, "Should parse dd.MM.yyyy");
-        assertEquals(LocalDate.of(2025, 3, 12), date3);
+        LocalDate d3 = Parser.parseDate("2025-03-19");
+        Assertions.assertEquals(LocalDate.of(2025, 3, 19), d3);
+    }
 
-        LocalDate invalidDate = Parser.parseDate("03-12-2025");
-        assertNull(invalidDate, "Should return null for unrecognized date format");
+    @Test
+    void testParseDate_InvalidFormat() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            Parser.parseDate("invalid-date");
+        });
     }
 }

@@ -1,32 +1,40 @@
 package myfitnesspal;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class FoodTest {
 
     @Test
-    @DisplayName("Test Food creation and toFileString")
-    void testFoodCreation() {
-        Food food = new Food("Apple",
-                "Red Apple",
-                100.0, 1,
-                52.0, 14.0, 0.2, 0.3);
+    void testFoodRecord() {
+        Food food = new Food("Pizza", "Cheesy slice",
+                100, 2, 300, 30, 10, 15);
 
-        assertEquals("Apple", food.name());
-        assertEquals("Red Apple", food.description());
-        assertEquals(100.0, food.servingSize());
-        assertEquals(1, food.servingsPerContainer());
-        assertEquals(52.0, food.calories());
-        assertEquals(14.0, food.carbs());
-        assertEquals(0.2, food.fat());
-        assertEquals(0.3, food.protein());
+        Assertions.assertEquals("Pizza", food.name());
+        Assertions.assertEquals("Cheesy slice", food.description());
+        Assertions.assertEquals(100, food.servingSize());
+        Assertions.assertEquals(2, food.servingsPerContainer());
+        Assertions.assertEquals(300, food.calories());
+        Assertions.assertEquals(30, food.carbs());
+        Assertions.assertEquals(10, food.fat());
+        Assertions.assertEquals(15, food.protein());
+    }
 
-        String fileStr = food.toFileString();
-        assertTrue(fileStr.startsWith("FOOD;"), "File string must start with FOOD;");
-        String[] parts = fileStr.split(";");
-        assertEquals(9, parts.length);
+    @Test
+    void testToFileString() {
+        Food food = new Food("Pizza", "Cheesy slice",
+                100, 2, 300, 30, 10, 15);
+        String fileString = food.toFileString();
+        Assertions.assertTrue(fileString.startsWith("FOOD;Pizza;Cheesy slice;100.0;2;300.0;30.0;10.0;15.0"));
+    }
+
+    @Test
+    void testToString() {
+        Food food = new Food("Pizza", "Cheesy slice",
+                100, 2, 300, 30, 10, 15);
+        String s = food.toString();
+        Assertions.assertTrue(s.contains("Pizza"));
+        Assertions.assertTrue(s.contains("100.0g"));
+        Assertions.assertTrue(s.contains("300.0 kcal"));
     }
 }

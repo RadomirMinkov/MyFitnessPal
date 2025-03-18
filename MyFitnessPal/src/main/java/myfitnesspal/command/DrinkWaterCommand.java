@@ -26,10 +26,7 @@ public class DrinkWaterCommand implements Command {
         String rawDate = scanner.nextLine();
 
         LocalDate date = Parser.parseDate(rawDate);
-        if (date == null) {
-            System.out.println("Invalid date: " + rawDate);
-            return;
-        }
+
 
         System.out.print(">How much?(ml) -");
         String amountStr = scanner.nextLine();
@@ -37,14 +34,11 @@ public class DrinkWaterCommand implements Command {
         try {
             amount = Integer.parseInt(amountStr);
         } catch (NumberFormatException e) {
-            System.out.println("Invalid number: " + amountStr);
-            return;
+            throw new IllegalArgumentException("Invalid number: " + amountStr);
         }
 
         WaterIntake waterIntake = new WaterIntake(date, amount);
         tracker.addItem(waterIntake);
-
-        tracker.save(fileName);
 
         System.out.println(">Water intake recorded successfully!");
     }

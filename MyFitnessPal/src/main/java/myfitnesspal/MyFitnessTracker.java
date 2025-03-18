@@ -53,4 +53,19 @@ public class MyFitnessTracker {
         }
         return foodList;
     }
+    public List<FoodLog> getFoodLogs() {
+        List<FoodLog> logs = new ArrayList<>();
+        for (Trackable t : items) {
+            if (t instanceof FoodLog fl) {
+                logs.add(fl);
+            }
+        }
+        return logs;
+    }
+    public List<FoodLog> getFoodLogsForDate(java.time.LocalDate date) {
+        return getFoodLogs()
+                .stream()
+                .filter(log -> log.date().equals(date))
+                .toList();
+    }
 }

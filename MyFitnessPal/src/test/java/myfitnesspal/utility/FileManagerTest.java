@@ -1,42 +1,36 @@
 package myfitnesspal.utility;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class FileManagerTest {
 
-    private static final String TEST_FILE = "test_output.txt";
+    @Test
+    void testSaveAndLoadRawLines() throws Exception {
+        Path tempFile = Files.createTempFile("test", ".txt");
+        String fileName = tempFile.toString();
 
-    @AfterEach
-    void cleanUp() {
-        File file = new File(TEST_FILE);
-        if (file.exists()) {
-            assertTrue(file.delete(), "Could not delete the test file");
-        }
+        List<String> linesToSave = List.of("Line1", "Line2", "Line3");
+        FileManager.saveRawLines(fileName, linesToSave);
+
+        List<String> loadedLines = FileManager.loadRawLines(fileName);
+        Assertions.assertEquals(linesToSave.size(), loadedLines.size());
+        Assertions.assertEquals(linesToSave, loadedLines);
+
+        Files.deleteIfExists(tempFile);
     }
 
     @Test
-    @DisplayName("Test writing and reading lines")
-    void testWriteAndRead() {
-        List<String> linesToWrite = List.of("line1", "line2", "line3");
-        FileManager.saveRawLines(TEST_FILE, linesToWrite);
+    void testLoadNonExistingFile() throws Exception {
+        Path tempFile = Files.createTempFile("test", ".txt");
+        Files.deleteIfExists(tempFile);
+        String fileName = tempFile.toString();
 
-        List<String> readLines = FileManager.loadRawLines(TEST_FILE);
-        assertEquals(linesToWrite.size(), readLines.size());
-        for (int i = 0; i < linesToWrite.size(); i++) {
-            assertEquals(linesToWrite.get(i), readLines.get(i), "Line content should match");
-        }
-    }
-
-    @Test
-    @DisplayName("Test loading from non-existent file returns empty list")
-    void testNonExistentFile() {
-        List<String> result = FileManager.loadRawLines("no_such_file.txt");
-        assertNotNull(result, "Should return a non-null list");
-        assertTrue(result.isEmpty(), "Should return an empty list if file does not exist");
+        List<String> lines = FileManager.loadRawLines(fileName);
+        Assertions.assertTrue(lines.isEmpty(), "Expected empty lines from non-existing file.");
     }
 }
