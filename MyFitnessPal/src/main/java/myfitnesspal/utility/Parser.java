@@ -54,13 +54,15 @@ public class Parser {
                 DateTimeFormatter.ofPattern("dd.MM.yyyy"),
                 DateTimeFormatter.ISO_LOCAL_DATE
         };
-
+        LocalDate date = null;
         for (DateTimeFormatter fmt : formats) {
             try {
-                return LocalDate.parse(dateStr, fmt);
-            } catch (DateTimeParseException ignored) {}
+                 date = LocalDate.parse(dateStr, fmt);
+            } catch (DateTimeParseException exception) {
+                
+            }
         }
-        return null;
+        return date;
     }
 
     private static Food parseFood(String data) {
@@ -68,7 +70,7 @@ public class Parser {
         String[] parts = data.split(";");
 
         if (parts.length != FOOD_PARAMETERS ) {
-            return null;
+            throw new IllegalArgumentException("Too few arguments");
         }
 
         String name = parts[0];
@@ -85,7 +87,7 @@ public class Parser {
             fat      = Double.parseDouble(parts[6]);
             protein  = Double.parseDouble(parts[7]);
         } catch (NumberFormatException e) {
-            return null;
+            throw new IllegalArgumentException("The given arguments aren't in the right format");
         }
 
         return new Food(name, description, servingSize, servingsPerContainer,

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FileManager {
 
-    public static List<String> loadRawLines(String fileName) {
+    public List<String> loadRawLines(String fileName) {
         List<String> lines = new ArrayList<>();
         File file = new File(fileName);
 
@@ -26,7 +26,7 @@ public class FileManager {
         return lines;
     }
 
-    public static void saveRawLines(String fileName, List<String> lines) {
+    public void saveRawLines(String fileName, List<String> lines) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
             for (String line : lines) {
                 bw.write(line);
