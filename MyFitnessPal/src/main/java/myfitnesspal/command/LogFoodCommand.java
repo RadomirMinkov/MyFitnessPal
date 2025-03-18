@@ -106,7 +106,7 @@ public class LogFoodCommand implements Command {
             totalProtein  = chosenFood.protein()     * numServings;
 
         } else {
-            System.out.print("(Or)\n>Serving size (g):\n-");
+            System.out.print(">Serving size (g):\n-");
             double grams = inputReader.readDouble();
             if (grams <= 0) {
                 throw new IllegalArgumentException("Invalid gram amount!");
