@@ -29,21 +29,26 @@ public class Application {
         commands.put("5", new LogFoodCommand(tracker, scanner, FILE_NAME));
         commands.put("6", new ViewLoggedFoodsCommand(tracker, scanner));
 
-        commands.put("7", new ExitCommand(this::stop));
+        commands.put("7", new ExitCommand(this::stop, tracker, FILE_NAME));
 
         this.running = true;
     }
 
     public void run() {
-        while (running) {
-            printMenu();
-            String choice = scanner.nextLine();
-            Command command = commands.get(choice);
-            if (command != null) {
-                command.execute();
-            } else {
-                System.out.println("Invalid input! Try again.");
-            }
+
+            while (running) {
+                try {
+                printMenu();
+                String choice = scanner.nextLine();
+                Command command = commands.get(choice);
+                if (command != null) {
+                    command.execute();
+                } else {
+                    System.out.println("Invalid input! Try again.");
+                }
+            } catch (Exception exception) {
+                    System.out.println(exception.getMessage());
+                }
         }
 
         scanner.close();

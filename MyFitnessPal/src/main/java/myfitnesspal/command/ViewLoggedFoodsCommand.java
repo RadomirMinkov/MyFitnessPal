@@ -23,16 +23,12 @@ public class ViewLoggedFoodsCommand implements Command {
 
         System.out.print(">When (date):\n-");
         String rawDate = scanner.nextLine();
+
         LocalDate date = Parser.parseDate(rawDate);
-        if (date == null) {
-            System.out.println("Invalid date: " + rawDate);
-            return;
-        }
 
         List<FoodLog> logs = tracker.getFoodLogsForDate(date);
         if (logs.isEmpty()) {
-            System.out.println("No foods logged for " + rawDate);
-            return;
+            throw new IllegalArgumentException("No foods logged for " + rawDate);
         }
 
         System.out.println("Foods logged on " + rawDate + ":");

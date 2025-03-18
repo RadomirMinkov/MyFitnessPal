@@ -27,42 +27,62 @@ public class LogFoodCommand implements Command {
     public void execute() {
         System.out.println(">5. Log Food");
 
+        Food chosenFood = chooseFood();
+
+        double[] totals = promptTotals(chosenFood);
+
+        FoodLog foodLog = new FoodLog(
+                promptDate(),
+                promptMeal(),
+                chosenFood.name(),
+                totals[0],
+                totals[1],
+                totals[2],
+                totals[3],
+                totals[4]
+        );
+
+        tracker.addItem(foodLog);
+        System.out.println("Logged successfully:\n" + foodLog);
+    }
+
+    private LocalDate promptDate() {
         System.out.print(">When (date):\n-");
         String rawDate = scanner.nextLine();
-        LocalDate date = Parser.parseDate(rawDate);
-        if (date == null) {
-            System.out.println("Invalid date: " + rawDate);
-            return;
-        }
+        return  Parser.parseDate(rawDate);
 
+    }
+
+    private String promptMeal() {
         System.out.print(">When (meal) [Breakfast/Lunch/Snacks/Dinner]:\n-");
         String meal = scanner.nextLine().trim();
         if (meal.isEmpty()) {
-            System.out.println("Invalid meal type!");
-            return;
+            throw new IllegalArgumentException("Invalid meal type!");
         }
+        return meal;
+    }
 
+    private Food chooseFood() {
         List<Food> allFoods = tracker.getFoods();
         if (allFoods.isEmpty()) {
-            System.out.println("No foods in the system. Please create a food first.");
-            return;
+            throw new IllegalArgumentException("No foods in the system. Please create a food first.");
         }
 
-        int index = 1;
-        for (Food f : allFoods) {
-            System.out.println(index + ". " + f);
-            index++;
+        for (int i = 0; i < allFoods.size(); i++) {
+            System.out.println((i + 1) + ". " + allFoods.get(i));
         }
 
         System.out.print(">Which food (food id):\n-");
         int chosenId = inputReader.readInt();
         if (chosenId < 1 || chosenId > allFoods.size()) {
-            System.out.println("Invalid food ID.");
-            return;
+            throw new IllegalArgumentException("Invalid food ID.");
         }
+
         Food chosenFood = allFoods.get(chosenId - 1);
         System.out.println(">" + chosenId + ". " + chosenFood);
-
+        return chosenFood;
+    }
+    private double[] promptTotals(Food chosenFood) {
         System.out.print("(Either)\n>Number of serving(s):\n-");
         String line = scanner.nextLine().trim();
 
@@ -73,30 +93,26 @@ public class LogFoodCommand implements Command {
         double totalProtein;
 
         if (!line.isEmpty()) {
-
             double numServings;
             try {
                 numServings = Double.parseDouble(line);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid number of servings: " + line);
-                return;
+                throw new IllegalArgumentException("Invalid number of servings: " + line);
             }
             totalGrams    = chosenFood.servingSize() * numServings;
-            totalCalories = chosenFood.calories() * numServings;
-            totalCarbs    = chosenFood.carbs()    * numServings;
-            totalFat      = chosenFood.fat()      * numServings;
-            totalProtein  = chosenFood.protein()  * numServings;
-        } else {
+            totalCalories = chosenFood.calories()    * numServings;
+            totalCarbs    = chosenFood.carbs()       * numServings;
+            totalFat      = chosenFood.fat()         * numServings;
+            totalProtein  = chosenFood.protein()     * numServings;
 
+        } else {
             System.out.print("(Or)\n>Serving size (g):\n-");
             double grams = inputReader.readDouble();
             if (grams <= 0) {
-                System.out.println("Invalid gram amount!");
-                return;
+                throw new IllegalArgumentException("Invalid gram amount!");
             }
 
             double factor = grams / chosenFood.servingSize();
-
             totalGrams    = grams;
             totalCalories = chosenFood.calories() * factor;
             totalCarbs    = chosenFood.carbs()    * factor;
@@ -104,20 +120,12 @@ public class LogFoodCommand implements Command {
             totalProtein  = chosenFood.protein()  * factor;
         }
 
-        FoodLog foodLog = new FoodLog(
-                date,
-                meal,
-                chosenFood.name(),
+        return new double[] {
                 totalGrams,
                 totalCalories,
                 totalCarbs,
                 totalFat,
                 totalProtein
-        );
-
-        tracker.addItem(foodLog);
-        tracker.save(fileName);
-
-        System.out.println("Logged successfully:\n" + foodLog);
+        };
     }
 }

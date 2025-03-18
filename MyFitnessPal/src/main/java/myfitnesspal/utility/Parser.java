@@ -1,6 +1,7 @@
 package myfitnesspal.utility;
 
 import myfitnesspal.Food;
+import myfitnesspal.FoodLog;
 import myfitnesspal.WaterIntake;
 
 import java.time.LocalDate;
@@ -10,6 +11,8 @@ import java.time.format.DateTimeParseException;
 public class Parser {
 
     private static final int FOOD_PARAMETERS = 8;
+
+    private static final int FOOD_LOG_PARAMETERS = 8;
     public static Trackable parseLine(String line) {
         String[] parts = line.split(";", 2);
         if (parts.length < 2) {
@@ -22,6 +25,7 @@ public class Parser {
         return switch (prefix) {
             case "WATER" -> parseWater(data);
             case "FOOD"  -> parseFood(data);
+            case "FOOD_LOG" -> parseFoodLog(data);
             default      -> null;
         };
     }
@@ -30,19 +34,16 @@ public class Parser {
 
         String[] parts = data.split(";");
         if (parts.length != 2) {
-            return null;
+            throw new IllegalArgumentException("Wrong number of arguments");
         }
 
         LocalDate date = parseDate(parts[0]);
-        if (date == null) {
-            return null;
-        }
 
         int amount;
         try {
             amount = Integer.parseInt(parts[1]);
         } catch (NumberFormatException e) {
-            return null;
+            throw new IllegalArgumentException(e.getMessage());
         }
 
         return new WaterIntake(date, amount);
@@ -52,17 +53,17 @@ public class Parser {
         DateTimeFormatter[] formats = {
                 DateTimeFormatter.ofPattern("yyyy/MM/dd"),
                 DateTimeFormatter.ofPattern("dd.MM.yyyy"),
+                DateTimeFormatter.ofPattern("yyyy-MM-yy"),
                 DateTimeFormatter.ISO_LOCAL_DATE
         };
-        LocalDate date = null;
         for (DateTimeFormatter fmt : formats) {
             try {
-                 date = LocalDate.parse(dateStr, fmt);
-            } catch (DateTimeParseException exception) {
-                
+                return LocalDate.parse(dateStr, fmt);
+            } catch (DateTimeParseException ignored) {
             }
         }
-        return date;
+
+        throw new IllegalArgumentException("Invalid date: " + dateStr);
     }
 
     private static Food parseFood(String data) {
@@ -92,5 +93,29 @@ public class Parser {
 
         return new Food(name, description, servingSize, servingsPerContainer,
                 calories, carbs, fat, protein);
+    }
+    private static FoodLog parseFoodLog(String data) {
+        String[] parts = data.split(";");
+        if (parts.length != FOOD_LOG_PARAMETERS) {
+            throw new IllegalArgumentException("Too few arguments");
+        }
+
+        LocalDate date = parseDate(parts[0]);
+
+        String meal       = parts[1];
+        String foodName   = parts[2];
+
+        double grams, cals, carbs, fat, protein;
+        try {
+            grams   = Double.parseDouble(parts[3]);
+            cals    = Double.parseDouble(parts[4]);
+            carbs   = Double.parseDouble(parts[5]);
+            fat     = Double.parseDouble(parts[6]);
+            protein = Double.parseDouble(parts[7]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return new FoodLog(date, meal, foodName, grams, cals, carbs, fat, protein);
     }
 }

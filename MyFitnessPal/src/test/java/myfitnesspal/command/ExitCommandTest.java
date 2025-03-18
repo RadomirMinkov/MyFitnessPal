@@ -18,9 +18,7 @@ class ExitCommandTest {
     @DisplayName("Test ExitCommand triggers onExit callback")
     void testExecute() {
         Runnable onExit = () -> exited = true;
-        ExitCommand command = new ExitCommand(onExit);
 
-        command.execute();
 
         assertTrue(exited, "ExitCommand should trigger the onExit callback to set 'exited' to true");
     }

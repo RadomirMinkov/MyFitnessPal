@@ -52,7 +52,6 @@ public class CreateFoodCommand implements Command {
                 calories, carbs, fat, protein);
 
         tracker.addItem(newFood);
-        tracker.save(fileName);
 
         System.out.println(">Food created successfully!");
     }
