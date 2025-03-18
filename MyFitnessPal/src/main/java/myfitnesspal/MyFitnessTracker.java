@@ -65,7 +65,7 @@ public class MyFitnessTracker {
     public List<FoodLog> getFoodLogsForDate(java.time.LocalDate date) {
         return getFoodLogs()
                 .stream()
-                .filter(log -> log.getDate().equals(date))
+                .filter(log -> log.date().equals(date))
                 .toList();
     }
 }
