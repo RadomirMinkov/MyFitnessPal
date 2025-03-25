@@ -9,9 +9,10 @@ import java.util.Scanner;
 class InputReaderTest {
 
     @Test
-    void testReadDouble_Valid() {
+    void testReadDoubleValid() {
         String data = "12.34\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
         InputReader inputReader = new InputReader(scanner);
 
         double value = inputReader.readDouble();
@@ -19,9 +20,10 @@ class InputReaderTest {
     }
 
     @Test
-    void testReadDouble_InvalidThenValid() {
+    void testReadDoubleInvalidThenValid() {
         String data = "abc\n3.14\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
         InputReader inputReader = new InputReader(scanner);
 
         double value = inputReader.readDouble();
@@ -29,9 +31,10 @@ class InputReaderTest {
     }
 
     @Test
-    void testReadInt_Valid() {
+    void testReadIntValid() {
         String data = "42\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
         InputReader inputReader = new InputReader(scanner);
 
         int value = inputReader.readInt();
@@ -39,9 +42,10 @@ class InputReaderTest {
     }
 
     @Test
-    void testReadInt_InvalidThenValid() {
+    void testReadIntInvalidThenValid() {
         String data = "forty-two\n99\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
         InputReader inputReader = new InputReader(scanner);
 
         int value = inputReader.readInt();

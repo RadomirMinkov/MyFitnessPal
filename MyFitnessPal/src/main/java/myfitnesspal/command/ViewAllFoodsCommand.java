@@ -5,7 +5,7 @@ import myfitnesspal.MyFitnessTracker;
 
 import java.util.List;
 
-public class ViewAllFoodsCommand implements Command {
+public final class ViewAllFoodsCommand implements Command {
     private final MyFitnessTracker tracker;
 
     public ViewAllFoodsCommand(MyFitnessTracker tracker) {

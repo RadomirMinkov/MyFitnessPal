@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class ExitCommandTest {
 
     @Test
-    void testExecute_SavesAndCallsOnExit() {
+    void testExecuteSavesAndCallsOnExit() {
         MyFitnessTracker tracker = new MyFitnessTracker();
 
         final boolean[] exitCalled = {false};

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 class ParserTest {
 
     @Test
-    void testParseLine_Water() {
+    void testParseLineWater() {
         String line = "WATER;2025-03-18;500";
         Trackable t = Parser.parseLine(line);
 
@@ -22,7 +22,7 @@ class ParserTest {
     }
 
     @Test
-    void testParseLine_Food() {
+    void testParseLineFood() {
         String line = "FOOD;Pizza;Cheesy slice;100;2;300;30;10;15";
         Trackable t = Parser.parseLine(line);
 
@@ -39,7 +39,7 @@ class ParserTest {
     }
 
     @Test
-    void testParseLine_FoodLog() {
+    void testParseLineFoodLog() {
         String line = "FOOD_LOG;2025-03-18;Lunch;Pizza;200;600;40;20;30";
         Trackable t = Parser.parseLine(line);
 
@@ -56,19 +56,21 @@ class ParserTest {
     }
 
     @Test
-    void testParseDate_SupportedFormats() {
+    void testParseDateSupportedFormats() {
         LocalDate d1 = Parser.parseDate("2025/03/19");
-        Assertions.assertEquals(LocalDate.of(2025, 3, 19), d1);
+        Assertions.assertEquals(LocalDate.of(2025,
+                3,  19),  d1);
 
         LocalDate d2 = Parser.parseDate("19.03.2025");
-        Assertions.assertEquals(LocalDate.of(2025, 3, 19), d2);
+        Assertions.assertEquals(LocalDate.of(2025,  3,
+                19), d2);
 
         LocalDate d3 = Parser.parseDate("2025-03-19");
         Assertions.assertEquals(LocalDate.of(2025, 3, 19), d3);
     }
 
     @Test
-    void testParseDate_InvalidFormat() {
+    void testParseDateInvalidFormat() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             Parser.parseDate("invalid-date");
         });

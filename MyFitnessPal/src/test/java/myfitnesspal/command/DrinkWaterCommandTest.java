@@ -2,7 +2,6 @@ package myfitnesspal.command;
 
 import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.WaterIntake;
-import myfitnesspal.utility.Parser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,12 +12,14 @@ import java.util.Scanner;
 class DrinkWaterCommandTest {
 
     @Test
-    void testExecute_ValidInput() {
+    void testExecuteValidInput() {
         String data = "2025-03-19\n500\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
         MyFitnessTracker tracker = new MyFitnessTracker();
 
-        DrinkWaterCommand cmd = new DrinkWaterCommand(tracker, scanner, "testfile.txt");
+        DrinkWaterCommand cmd =
+                new DrinkWaterCommand(tracker, scanner, "testfile.txt");
         cmd.execute();
 
         Assertions.assertEquals(1, tracker.getWaterIntakes().size());
@@ -28,12 +29,14 @@ class DrinkWaterCommandTest {
     }
 
     @Test
-    void testExecute_InvalidAmount() {
+    void testExecuteInvalidAmount() {
         String data = "2025-03-19\nnotAnInt\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
         MyFitnessTracker tracker = new MyFitnessTracker();
 
-        DrinkWaterCommand cmd = new DrinkWaterCommand(tracker, scanner, "testfile.txt");
+        DrinkWaterCommand cmd =
+                new DrinkWaterCommand(tracker, scanner, "testfile.txt");
         Assertions.assertThrows(IllegalArgumentException.class, cmd::execute);
     }
 }

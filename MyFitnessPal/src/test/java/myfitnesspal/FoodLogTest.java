@@ -30,7 +30,10 @@ class FoodLogTest {
                 200, 600, 40, 20, 30);
 
         String fileStr = log.toFileString();
-        Assertions.assertTrue(fileStr.contains("FOOD_LOG;2025-03-19;Lunch;Pizza;200.0;600.0;40.0;20.0;30.0"));
+        Assertions.assertTrue(
+                fileStr.contains(
+                        "FOOD_LOG;2025-03-19;Lunch;Pizza;"
+                                + "200.0;600.0;40.0;20.0;30.0"));
     }
 
     @Test

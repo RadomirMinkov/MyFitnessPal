@@ -2,7 +2,7 @@ package myfitnesspal.utility;
 
 import java.util.Scanner;
 
-public class InputReader {
+public final class InputReader {
     private final Scanner scanner;
 
     public InputReader(Scanner scanner) {

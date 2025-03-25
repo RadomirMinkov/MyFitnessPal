@@ -6,13 +6,14 @@ import myfitnesspal.utility.InputReader;
 
 import java.util.Scanner;
 
-public class CreateFoodCommand implements Command {
+ public final class CreateFoodCommand implements Command {
     private final MyFitnessTracker tracker;
     private final Scanner scanner;
     private final String fileName;
     private final InputReader inputReader;
 
-    public CreateFoodCommand(MyFitnessTracker tracker, Scanner scanner, String fileName) {
+    public CreateFoodCommand(MyFitnessTracker tracker,
+                             Scanner scanner, String fileName) {
         this.tracker = tracker;
         this.scanner = scanner;
         this.fileName = fileName;

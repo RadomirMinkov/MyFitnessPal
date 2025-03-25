@@ -5,16 +5,16 @@ import myfitnesspal.WaterIntake;
 import myfitnesspal.utility.Parser;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
-public class DrinkWaterCommand implements Command {
+ public final class DrinkWaterCommand implements Command {
     private final MyFitnessTracker tracker;
     private final Scanner scanner;
     private final String fileName;
 
-    public DrinkWaterCommand(MyFitnessTracker tracker, Scanner scanner, String fileName) {
+    public DrinkWaterCommand(MyFitnessTracker tracker,
+                             Scanner scanner,
+                             String fileName) {
         this.tracker = tracker;
         this.scanner = scanner;
         this.fileName = fileName;

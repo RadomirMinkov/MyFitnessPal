@@ -22,7 +22,7 @@ class MyFitnessTrackerTest {
     @Test
     void testAddItemAndGetWaterIntakes() {
         WaterIntake wi = new WaterIntake(LocalDate.of(2025,
-                3,19), 500);
+                3, 19), 500);
         tracker.addItem(wi);
         List<WaterIntake> waterIntakes = tracker.getWaterIntakes();
         Assertions.assertEquals(1, waterIntakes.size());
@@ -41,9 +41,9 @@ class MyFitnessTrackerTest {
 
     @Test
     void testAddItemAndGetFoodLogs() {
-        FoodLog fl = new FoodLog(LocalDate.of(2025,3,19),
-                "Lunch","Pizza",200,600,40,
-                20,30);
+        FoodLog fl = new FoodLog(LocalDate.of(2025, 3, 19),
+                "Lunch", "Pizza", 200, 600, 40,
+                20, 30);
         tracker.addItem(fl);
         List<FoodLog> logs = tracker.getFoodLogs();
         Assertions.assertEquals(1, logs.size());
@@ -68,28 +68,35 @@ class MyFitnessTrackerTest {
                         + tracker.getFoods().size()
                         + tracker.getFoodLogs().size());
 
-        tracker.addItem(new WaterIntake(LocalDate.of(2025,3,20), 600));
+        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3,
+                20), 600));
         tracker.save(fileName);
 
         MyFitnessTracker anotherTracker = new MyFitnessTracker();
         anotherTracker.load(fileName);
-        Assertions.assertEquals(4, anotherTracker.getWaterIntakes().size() +
-                anotherTracker.getFoods().size() +
-                anotherTracker.getFoodLogs().size());
+        Assertions.assertEquals(4, anotherTracker.getWaterIntakes().size()
+                + anotherTracker.getFoods().size()
+                + anotherTracker.getFoodLogs().size());
 
         Files.deleteIfExists(tempFile);
     }
 
     @Test
     void testGetFoodLogsForDate() {
-        FoodLog fl1 = new FoodLog(LocalDate.of(2025,3,19),
-                "Lunch","Pizza",200,600,40,20,30);
-        FoodLog fl2 = new FoodLog(LocalDate.of(2025,3,20),
-                "Dinner","Pasta",300,500,50,10,20);
+        FoodLog fl1 = new FoodLog(LocalDate.of(2025, 3, 19),
+                "Lunch", "Pizza",
+                200, 600,
+                40, 20, 30);
+        FoodLog fl2 = new FoodLog(LocalDate.of(2025, 3,
+                20),
+                "Dinner", "Pasta",
+                300, 500,
+                50, 10, 20);
         tracker.addItem(fl1);
         tracker.addItem(fl2);
 
-        List<FoodLog> logsFor19 = tracker.getFoodLogsForDate(LocalDate.of(2025,3,19));
+        List<FoodLog> logsFor19 = tracker.getFoodLogsForDate(LocalDate.of(
+                2025, 3, 19));
         Assertions.assertEquals(1, logsFor19.size());
         Assertions.assertEquals(fl1, logsFor19.get(0));
     }

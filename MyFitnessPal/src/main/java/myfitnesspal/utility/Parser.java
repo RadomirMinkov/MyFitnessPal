@@ -8,8 +8,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class Parser {
+public final class Parser {
 
+    private Parser() {
+        throw new UnsupportedOperationException("Utility class");
+    }
     private static final int FOOD_PARAMETERS = 8;
 
     private static final int FOOD_LOG_PARAMETERS = 8;
@@ -70,7 +73,7 @@ public class Parser {
 
         String[] parts = data.split(";");
 
-        if (parts.length != FOOD_PARAMETERS ) {
+        if (parts.length != FOOD_PARAMETERS) {
             throw new IllegalArgumentException("Too few arguments");
         }
 
@@ -78,7 +81,10 @@ public class Parser {
         String description = parts[1];
         double servingSize;
         int servingsPerContainer;
-        double calories, carbs, fat, protein;
+        double calories;
+        double carbs;
+        double fat;
+        double protein;
 
         try {
             servingSize = Double.parseDouble(parts[2]);
@@ -88,10 +94,12 @@ public class Parser {
             fat      = Double.parseDouble(parts[6]);
             protein  = Double.parseDouble(parts[7]);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("The given arguments aren't in the right format");
+            throw new IllegalArgumentException(
+                    "The given arguments aren't in the right format");
         }
 
-        return new Food(name, description, servingSize, servingsPerContainer,
+        return new Food(name, description,
+                servingSize, servingsPerContainer,
                 calories, carbs, fat, protein);
     }
     private static FoodLog parseFoodLog(String data) {
@@ -105,17 +113,24 @@ public class Parser {
         String meal       = parts[1];
         String foodName   = parts[2];
 
-        double grams, cals, carbs, fat, protein;
+        double grams;
+        double cals;
+        double carbs;
+        double fat;
+        double protein;
+
         try {
             grams   = Double.parseDouble(parts[3]);
             cals    = Double.parseDouble(parts[4]);
             carbs   = Double.parseDouble(parts[5]);
             fat     = Double.parseDouble(parts[6]);
-            protein = Double.parseDouble(parts[7]);
+            protein = Double
+                    .parseDouble(parts[7]);
         } catch (NumberFormatException e) {
             return null;
         }
 
-        return new FoodLog(date, meal, foodName, grams, cals, carbs, fat, protein);
+        return new FoodLog(date, meal,
+                foodName, grams, cals, carbs, fat, protein);
     }
 }

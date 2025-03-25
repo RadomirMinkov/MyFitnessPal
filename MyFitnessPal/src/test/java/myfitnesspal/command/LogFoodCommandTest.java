@@ -13,7 +13,7 @@ import java.util.Scanner;
 class LogFoodCommandTest {
 
     @Test
-    void testExecute_ValidByServings() {
+    void testExecuteValidByServings() {
         MyFitnessTracker tracker = new MyFitnessTracker();
         tracker.addItem(new Food("Pizza", "Cheesy slice",
                 100, 2, 300, 30, 10, 15));
@@ -25,8 +25,10 @@ class LogFoodCommandTest {
                 "Lunch"
         ) + "\n";
 
-        Scanner scanner = new Scanner(new ByteArrayInputStream(inputData.getBytes()));
-        LogFoodCommand cmd = new LogFoodCommand(tracker, scanner, "testfile.txt");
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(inputData.getBytes()));
+        LogFoodCommand cmd = new LogFoodCommand(
+                tracker, scanner, "testfile.txt");
         cmd.execute();
 
         List<FoodLog> logs = tracker.getFoodLogs();
@@ -42,7 +44,7 @@ class LogFoodCommandTest {
     }
 
     @Test
-    void testExecute_ValidByGrams() {
+    void testExecuteValidByGrams() {
 
         MyFitnessTracker tracker = new MyFitnessTracker();
         tracker.addItem(new Food("Pizza", "Cheesy slice",
@@ -56,8 +58,10 @@ class LogFoodCommandTest {
                 "Lunch"
         ) + "\n";
 
-        Scanner scanner = new Scanner(new ByteArrayInputStream(inputData.getBytes()));
-        LogFoodCommand cmd = new LogFoodCommand(tracker, scanner, "testfile.txt");
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(inputData.getBytes()));
+        LogFoodCommand cmd = new LogFoodCommand(
+                tracker, scanner, "testfile.txt");
         cmd.execute();
 
         List<FoodLog> logs = tracker.getFoodLogs();
@@ -72,11 +76,13 @@ class LogFoodCommandTest {
     }
 
     @Test
-    void testExecute_NoFoodsInSystem() {
+    void testExecuteNoFoodsInSystem() {
         MyFitnessTracker tracker = new MyFitnessTracker();
         String inputData = "1\n2025-03-19\nLunch\n2\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(inputData.getBytes()));
-        LogFoodCommand cmd = new LogFoodCommand(tracker, scanner, "testfile.txt");
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(inputData.getBytes()));
+        LogFoodCommand cmd =
+                new LogFoodCommand(tracker, scanner, "testfile.txt");
 
         Assertions.assertThrows(IllegalArgumentException.class, cmd::execute);
     }

@@ -7,7 +7,7 @@ import myfitnesspal.utility.Trackable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyFitnessTracker {
+public final class MyFitnessTracker {
     private final List<Trackable> items = new ArrayList<>();
 
     public void load(String fileName) {

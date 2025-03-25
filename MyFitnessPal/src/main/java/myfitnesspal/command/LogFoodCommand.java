@@ -10,13 +10,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
-public class LogFoodCommand implements Command {
+public final class LogFoodCommand implements Command {
     private final MyFitnessTracker tracker;
     private final Scanner scanner;
     private final String fileName;
     private final InputReader inputReader;
 
-    public LogFoodCommand(MyFitnessTracker tracker, Scanner scanner, String fileName) {
+    public LogFoodCommand(MyFitnessTracker tracker,
+                          Scanner scanner, String fileName) {
         this.tracker = tracker;
         this.scanner = scanner;
         this.fileName = fileName;
@@ -65,7 +66,8 @@ public class LogFoodCommand implements Command {
     private Food chooseFood() {
         List<Food> allFoods = tracker.getFoods();
         if (allFoods.isEmpty()) {
-            throw new IllegalArgumentException("No foods in the system. Please create a food first.");
+            throw new IllegalArgumentException(
+                    "No foods in the system. Please create a food first.");
         }
 
         for (int i = 0; i < allFoods.size(); i++) {
@@ -97,7 +99,8 @@ public class LogFoodCommand implements Command {
             try {
                 numServings = Double.parseDouble(line);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid number of servings: " + line);
+                throw new IllegalArgumentException(
+                        "Invalid number of servings: " + line);
             }
             totalGrams    = chosenFood.servingSize() * numServings;
             totalCalories = chosenFood.calories()    * numServings;

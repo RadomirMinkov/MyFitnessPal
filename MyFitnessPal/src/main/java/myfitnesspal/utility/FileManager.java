@@ -1,10 +1,18 @@
 package myfitnesspal.utility;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileManager {
+public final class FileManager {
+    private FileManager() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     public static List<String> loadRawLines(String fileName) {
         List<String> lines = new ArrayList<>();
@@ -20,7 +28,9 @@ public class FileManager {
                 lines.add(line);
             }
         } catch (IOException e) {
-            System.out.println("Error reading from file: " + fileName + " - " + e.getMessage());
+            System.out.println(
+                    "Error reading from file: "
+                            + fileName + " - " + e.getMessage());
         }
 
         return lines;
@@ -33,7 +43,10 @@ public class FileManager {
                 bw.newLine();
             }
         } catch (IOException e) {
-            System.out.println("Error writing to file: " + fileName + " - " + e.getMessage());
+            System.out.println(
+                    "Error writing to file: "
+                            + fileName + " - "
+                            + e.getMessage());
         }
     }
 }

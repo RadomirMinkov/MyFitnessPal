@@ -11,7 +11,7 @@ import java.io.PrintStream;
 class ViewAllFoodsCommandTest {
 
     @Test
-    void testExecute_NoFoods() {
+    void testExecuteNoFoods() {
         MyFitnessTracker tracker = new MyFitnessTracker();
         ViewAllFoodsCommand cmd = new ViewAllFoodsCommand(tracker);
 
@@ -27,7 +27,7 @@ class ViewAllFoodsCommandTest {
     }
 
     @Test
-    void testExecute_WithFoods() {
+    void testExecuteWithFoods() {
         MyFitnessTracker tracker = new MyFitnessTracker();
         tracker.addItem(new Food("Pizza", "Desc",
                 100, 2, 300, 30, 10, 15));

@@ -4,8 +4,11 @@ import myfitnesspal.utility.Trackable;
 
 import java.time.LocalDate;
 
-public record FoodLog(LocalDate date, String meal, String foodName, double totalGrams, double totalCalories,
-                      double totalCarbs, double totalFat, double totalProtein) implements Trackable {
+public record FoodLog(LocalDate date,
+                      String meal, String foodName,
+                      double totalGrams, double totalCalories,
+                      double totalCarbs, double totalFat,
+                      double totalProtein) implements Trackable {
 
     @Override
     public String toFileString() {
@@ -22,7 +25,9 @@ public record FoodLog(LocalDate date, String meal, String foodName, double total
 
     @Override
     public String toString() {
-        return String.format("%sg %s (%.0f kcal; %.2fg, %.2fg, %.2fg) [Meal: %s, Date: %s]",
-                totalGrams, foodName, totalCalories, totalCarbs, totalFat, totalProtein, meal, date);
+        return String.format(
+                "%sg %s (%.0f kcal; %.2fg, %.2fg, %.2fg) [Meal: %s, Date: %s]",
+                totalGrams, foodName, totalCalories, totalCarbs, totalFat,
+                totalProtein, meal, date);
     }
 }

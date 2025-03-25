@@ -25,7 +25,10 @@ class FoodTest {
         Food food = new Food("Pizza", "Cheesy slice",
                 100, 2, 300, 30, 10, 15);
         String fileString = food.toFileString();
-        Assertions.assertTrue(fileString.startsWith("FOOD;Pizza;Cheesy slice;100.0;2;300.0;30.0;10.0;15.0"));
+        Assertions.assertTrue(
+                fileString.startsWith(
+                        "FOOD;Pizza;Cheesy slice;"
+                                + "100.0;2;300.0;30.0;10.0;15.0"));
     }
 
     @Test

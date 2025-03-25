@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
-public class CheckWaterCommand implements Command {
+ public final class CheckWaterCommand implements Command {
     private final MyFitnessTracker tracker;
     private final Scanner scanner;
 

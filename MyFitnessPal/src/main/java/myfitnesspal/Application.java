@@ -1,11 +1,19 @@
 package myfitnesspal;
 
-import myfitnesspal.command.*;
+import myfitnesspal.command.CheckWaterCommand;
+import myfitnesspal.command.Command;
+import myfitnesspal.command.CreateFoodCommand;
+import myfitnesspal.command.DrinkWaterCommand;
+import myfitnesspal.command.ExitCommand;
+import myfitnesspal.command.LogFoodCommand;
+import myfitnesspal.command.ViewAllFoodsCommand;
+import myfitnesspal.command.ViewLoggedFoodsCommand;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Application {
+public final class Application {
     private static final String FILE_NAME = "all_data.txt";
 
     private final MyFitnessTracker tracker;
@@ -13,7 +21,7 @@ public class Application {
     private final Map<String, Command> commands;
     private boolean running;
 
-    public Application() {
+     public Application() {
         this.tracker = new MyFitnessTracker();
         tracker.load(FILE_NAME);
 

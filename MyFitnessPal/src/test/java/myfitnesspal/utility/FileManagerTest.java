@@ -31,6 +31,7 @@ class FileManagerTest {
         String fileName = tempFile.toString();
 
         List<String> lines = FileManager.loadRawLines(fileName);
-        Assertions.assertTrue(lines.isEmpty(), "Expected empty lines from non-existing file.");
+        Assertions.assertTrue(lines.isEmpty(),
+                "Expected empty lines from non-existing file.");
     }
 }

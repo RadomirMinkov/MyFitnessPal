@@ -12,25 +12,30 @@ import java.util.Scanner;
 class CheckWaterCommandTest {
 
     @Test
-    void testExecute_FoundWater() {
+    void testExecuteFoundWater() {
         MyFitnessTracker tracker = new MyFitnessTracker();
-        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3, 19), 500));
+        tracker.addItem(new WaterIntake(LocalDate.of(2025,
+                3, 19), 500));
 
         String data = "2025-03-19\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
-        CheckWaterCommand cmd = new CheckWaterCommand(tracker, scanner);
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
+        CheckWaterCommand cmd =
+                new CheckWaterCommand(tracker, scanner);
 
         cmd.execute();
         Assertions.assertEquals(1, tracker.getWaterIntakes().size());
     }
 
     @Test
-    void testExecute_NoWater() {
+    void testExecuteNoWater() {
         MyFitnessTracker tracker = new MyFitnessTracker();
 
         String data = "2025-03-19\n";
-        Scanner scanner = new Scanner(new ByteArrayInputStream(data.getBytes()));
-        CheckWaterCommand cmd = new CheckWaterCommand(tracker, scanner);
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
+        CheckWaterCommand cmd = new CheckWaterCommand(
+                tracker, scanner);
 
         cmd.execute();
         Assertions.assertTrue(tracker.getWaterIntakes().isEmpty());
