@@ -9,19 +9,8 @@ import java.util.Scanner;
 class InputReaderTest {
 
     @Test
-    void testReadDoubleValid() {
-        String data = "12.34\n";
-        Scanner scanner = new Scanner(
-                new ByteArrayInputStream(data.getBytes()));
-        InputReader inputReader = new InputReader(scanner);
-
-        double value = inputReader.readDouble();
-        Assertions.assertEquals(12.34, value, 0.0001);
-    }
-
-    @Test
-    void testReadDoubleInvalidThenValid() {
-        String data = "abc\n3.14\n";
+    void testReadDoubleValidInput() {
+        String data = "3.14\n";
         Scanner scanner = new Scanner(
                 new ByteArrayInputStream(data.getBytes()));
         InputReader inputReader = new InputReader(scanner);
@@ -29,9 +18,19 @@ class InputReaderTest {
         double value = inputReader.readDouble();
         Assertions.assertEquals(3.14, value, 0.0001);
     }
+    @Test
+    void testReadDoubleInvalidInputOnly() {
+        String data = "abc\n";
+        Scanner scanner = new Scanner(
+                new ByteArrayInputStream(data.getBytes()));
+        InputReader inputReader = new InputReader(scanner);
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class, inputReader::readDouble);
+    }
 
     @Test
-    void testReadIntValid() {
+    void testReadIntValidInput() {
         String data = "42\n";
         Scanner scanner = new Scanner(
                 new ByteArrayInputStream(data.getBytes()));
@@ -42,13 +41,13 @@ class InputReaderTest {
     }
 
     @Test
-    void testReadIntInvalidThenValid() {
-        String data = "forty-two\n99\n";
+    void testReadIntInvalidInputOnly() {
+        String data = "forty-two\n";
         Scanner scanner = new Scanner(
                 new ByteArrayInputStream(data.getBytes()));
         InputReader inputReader = new InputReader(scanner);
 
-        int value = inputReader.readInt();
-        Assertions.assertEquals(99, value);
+        Assertions.assertThrows(
+                IllegalArgumentException.class, inputReader::readInt);
     }
 }

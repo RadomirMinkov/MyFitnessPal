@@ -2,49 +2,63 @@ package myfitnesspal.command;
 
 import myfitnesspal.Food;
 import myfitnesspal.MyFitnessTracker;
-import org.junit.jupiter.api.Assertions;
+import myfitnesspal.utility.OutputWriter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 class ViewAllFoodsCommandTest {
 
+    private MyFitnessTracker tracker;
+    private OutputWriter outputWriter;
+
+    @BeforeEach
+    void setUp() {
+        tracker = Mockito.mock(MyFitnessTracker.class);
+        outputWriter = mock(OutputWriter.class);
+    }
+
     @Test
     void testExecuteNoFoods() {
-        MyFitnessTracker tracker = new MyFitnessTracker();
-        ViewAllFoodsCommand cmd = new ViewAllFoodsCommand(tracker);
+        when(tracker.getFoods()).thenReturn(new ArrayList<>());
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
+        ViewAllFoodsCommand command = new
+                ViewAllFoodsCommand(tracker, outputWriter);
+        command.execute();
 
-        cmd.execute();
-
-        System.setOut(System.out);
-
-        String output = outputStream.toString();
-        Assertions.assertTrue(output.contains("No foods found."));
+        verify(outputWriter).write(">4. View All Foods");
+        verify(outputWriter).write("No foods found.");
+        verifyNoMoreInteractions(outputWriter);
     }
 
     @Test
     void testExecuteWithFoods() {
-        MyFitnessTracker tracker = new MyFitnessTracker();
-        tracker.addItem(new Food("Pizza", "Desc",
-                100, 2, 300, 30, 10, 15));
-        tracker.addItem(new Food("Burger", "DescB",
-                150, 1, 400, 40, 20, 25));
+        List<Food> foods = new ArrayList<>();
+        foods.add(new Food("Apple", "desc",
+                100, 1, 52,
+                14, 0.2, 0.3));
+        foods.add(new Food("Bread", "desc",
+                50,
+                4, 120, 25,
+                2, 4));
 
-        ViewAllFoodsCommand cmd = new ViewAllFoodsCommand(tracker);
+        when(tracker.getFoods()).thenReturn(foods);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
+        ViewAllFoodsCommand command =
+                new ViewAllFoodsCommand(tracker, outputWriter);
+        command.execute();
 
-        cmd.execute();
-
-        System.setOut(System.out);
-
-        String output = outputStream.toString();
-        Assertions.assertTrue(output.contains("1. Pizza"));
-        Assertions.assertTrue(output.contains("2. Burger"));
+        verify(outputWriter).write(">4. View All Foods");
+        verify(outputWriter).write("1. " + foods.get(0));
+        verify(outputWriter).write("2. " + foods.get(1));
+        verifyNoMoreInteractions(outputWriter);
     }
 }

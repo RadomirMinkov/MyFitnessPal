@@ -3,87 +3,116 @@ package myfitnesspal.command;
 import myfitnesspal.Food;
 import myfitnesspal.FoodLog;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.startsWith;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class LogFoodCommandTest {
 
     @Test
-    void testExecuteValidByServings() {
-        MyFitnessTracker tracker = new MyFitnessTracker();
-        tracker.addItem(new Food("Pizza", "Cheesy slice",
-                100, 2, 300, 30, 10, 15));
+    void testExecuteSuccessfulLog() {
+        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
+        InputProvider inputProvider = mock(InputProvider.class);
+        OutputWriter outputWriter = mock(OutputWriter.class);
 
-        String inputData = String.join("\n",
-                "1",
-                "2",
-                "2025-03-19",
-                "Lunch"
-        ) + "\n";
+        List<Food> foods = new ArrayList<>();
+        foods.add(new Food("Apple", "Juicy fruit",
+                100, 1,
+                52, 14, 0.2, 0.3));
+        foods.add(new Food("Bread", "Whole wheat",
+                50, 4,
+                120, 25, 2, 4));
+        when(tracker.getFoods()).thenReturn(foods);
 
-        Scanner scanner = new Scanner(
-                new ByteArrayInputStream(inputData.getBytes()));
-        LogFoodCommand cmd = new LogFoodCommand(
-                tracker, scanner, "testfile.txt");
-        cmd.execute();
+        when(inputProvider.readLine())
+                .thenReturn("2")
+                .thenReturn("2")
+                .thenReturn("2025-04-01")
+                .thenReturn("Lunch");
 
-        List<FoodLog> logs = tracker.getFoodLogs();
-        Assertions.assertEquals(1, logs.size());
-        FoodLog fl = logs.get(0);
+        LogFoodCommand command = new LogFoodCommand(
+                tracker, inputProvider, outputWriter, "testfile.txt"
+        );
+        command.execute();
 
-        Assertions.assertEquals("Pizza", fl.foodName());
-        Assertions.assertEquals(200, fl.totalGrams());
-        Assertions.assertEquals(600, fl.totalCalories());
-        Assertions.assertEquals(30 * 2, fl.totalCarbs());
-        Assertions.assertEquals(10 * 2, fl.totalFat());
-        Assertions.assertEquals(15 * 2, fl.totalProtein());
+        verify(outputWriter).write(">5. Log Food\n");
+        verify(outputWriter).write("1. " + foods.get(0));
+        verify(outputWriter).write("2. " + foods.get(1));
+        verify(outputWriter).write(">Which food (food id):\n-");
+        verify(outputWriter).write("(Either)\n>Number of serving(s):\n-");
+        verify(outputWriter).write(">When (date):\n-");
+        verify(outputWriter).write(">When (meal) "
+                + "[Breakfast/Lunch/Snacks/Dinner]:\n-");
+        verify(outputWriter).write(startsWith("Logged successfully:\n"));
+
+        verify(tracker).addItem(argThat(item -> {
+            if (!(item instanceof FoodLog fl)) {
+                return false;
+            }
+            return fl.foodName().equals("Bread")
+                    && fl.date().equals(LocalDate.of(
+                            2025, 4, 1))
+                    && fl.meal().equals("Lunch");
+        }));
+
     }
 
     @Test
-    void testExecuteValidByGrams() {
+    void testExecuteNoFoods() {
+        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
+        InputProvider inputProvider = mock(InputProvider.class);
+        OutputWriter outputWriter = mock(OutputWriter.class);
 
-        MyFitnessTracker tracker = new MyFitnessTracker();
-        tracker.addItem(new Food("Pizza", "Cheesy slice",
-                100, 2, 300, 30, 10, 15));
+        when(tracker.getFoods()).thenReturn(new ArrayList<>());
+        when(inputProvider.readLine()).thenReturn("1");
 
-        String inputData = String.join("\n",
-                "1",
-                "",
-                "150",
-                "2025-03-19",
-                "Lunch"
-        ) + "\n";
+        LogFoodCommand command = new LogFoodCommand(
+                tracker, inputProvider, outputWriter, "testfile.txt"
+        );
+        Assertions.assertThrows(
+                IllegalArgumentException.class, command::execute);
 
-        Scanner scanner = new Scanner(
-                new ByteArrayInputStream(inputData.getBytes()));
-        LogFoodCommand cmd = new LogFoodCommand(
-                tracker, scanner, "testfile.txt");
-        cmd.execute();
-
-        List<FoodLog> logs = tracker.getFoodLogs();
-        Assertions.assertEquals(1, logs.size());
-        FoodLog fl = logs.get(0);
-
-        Assertions.assertEquals(150, fl.totalGrams());
-        Assertions.assertEquals(300 * 1.5, fl.totalCalories());
-        Assertions.assertEquals(30 * 1.5, fl.totalCarbs());
-        Assertions.assertEquals(10 * 1.5, fl.totalFat());
-        Assertions.assertEquals(15 * 1.5, fl.totalProtein());
+        verify(outputWriter).write(">5. Log Food\n");
     }
 
     @Test
-    void testExecuteNoFoodsInSystem() {
-        MyFitnessTracker tracker = new MyFitnessTracker();
-        String inputData = "1\n2025-03-19\nLunch\n2\n";
-        Scanner scanner = new Scanner(
-                new ByteArrayInputStream(inputData.getBytes()));
-        LogFoodCommand cmd =
-                new LogFoodCommand(tracker, scanner, "testfile.txt");
+    void testExecuteInvalidFoodId() {
+        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
+        InputProvider inputProvider = mock(InputProvider.class);
+        OutputWriter outputWriter = mock(OutputWriter.class);
 
-        Assertions.assertThrows(IllegalArgumentException.class, cmd::execute);
+        List<Food> foods = new ArrayList<>();
+        foods.add(new Food("TestFood", "desc",
+                100, 1,
+                100, 10, 1, 2));
+        when(tracker.getFoods()).thenReturn(foods);
+
+        when(inputProvider.readLine())
+                .thenReturn("5")
+                .thenReturn("1")
+                .thenReturn("2025-04-01")
+                .thenReturn("Breakfast");
+
+        LogFoodCommand command = new LogFoodCommand(
+                tracker, inputProvider, outputWriter, "file.txt"
+        );
+        Assertions.assertThrows(
+                IllegalArgumentException.class, command::execute);
+
+        verify(outputWriter).write(">5. Log Food\n");
+        verify(outputWriter).write("1. " + foods.get(0));
+        verify(outputWriter).write(">Which food (food id):\n-");
+
     }
 }

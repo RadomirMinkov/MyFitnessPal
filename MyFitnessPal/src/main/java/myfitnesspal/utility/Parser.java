@@ -19,7 +19,7 @@ public final class Parser {
     public static Trackable parseLine(String line) {
         String[] parts = line.split(";", 2);
         if (parts.length < 2) {
-            return null;
+            throw new IllegalArgumentException("Wrong number of arguments");
         }
 
         String prefix = parts[0];
@@ -108,29 +108,17 @@ public final class Parser {
             throw new IllegalArgumentException("Too few arguments");
         }
 
-        LocalDate date = parseDate(parts[0]);
-
-        String meal       = parts[1];
-        String foodName   = parts[2];
-
-        double grams;
-        double cals;
-        double carbs;
-        double fat;
-        double protein;
-
         try {
-            grams   = Double.parseDouble(parts[3]);
-            cals    = Double.parseDouble(parts[4]);
-            carbs   = Double.parseDouble(parts[5]);
-            fat     = Double.parseDouble(parts[6]);
-            protein = Double
-                    .parseDouble(parts[7]);
+            return new FoodLog(parseDate(parts[0]),
+                    parts[1], parts[2],
+                    Double.parseDouble(parts[3]),
+                    Double.parseDouble(parts[4]),
+                    Double.parseDouble(parts[5]),
+                    Double.parseDouble(parts[6]),
+                    Double.parseDouble(parts[7]));
         } catch (NumberFormatException e) {
-            return null;
+            throw new IllegalArgumentException(e);
         }
 
-        return new FoodLog(date, meal,
-                foodName, grams, cals, carbs, fat, protein);
     }
 }

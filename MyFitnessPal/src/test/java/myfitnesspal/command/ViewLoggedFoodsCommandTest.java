@@ -2,40 +2,89 @@ package myfitnesspal.command;
 
 import myfitnesspal.FoodLog;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 class ViewLoggedFoodsCommandTest {
 
+    private MyFitnessTracker tracker;
+    private InputProvider inputProvider;
+    private OutputWriter outputWriter;
+
+    @BeforeEach
+    void setUp() {
+        tracker = mock(MyFitnessTracker.class);
+        inputProvider = mock(InputProvider.class);
+        outputWriter = mock(OutputWriter.class);
+    }
+
     @Test
-    void testExecuteFoundLogs() {
-        MyFitnessTracker tracker = new MyFitnessTracker();
-        tracker.addItem(new FoodLog(LocalDate.of(2025, 3,
-                19), "Lunch", "Pizza", 200,
-                600, 40, 20, 30));
+    void testExecuteWithLogs() {
+        when(inputProvider.readLine()).thenReturn("2025-04-01");
 
-        String data = "2025-03-19\n";
-        Scanner scanner = new Scanner(
-                new ByteArrayInputStream(data.getBytes()));
-        ViewLoggedFoodsCommand cmd =
-                new ViewLoggedFoodsCommand(tracker, scanner);
+        List<FoodLog> logs = new ArrayList<>();
+        logs.add(new FoodLog(
+                LocalDate.of(2025, 4,
+                        1), "Lunch", "Bread",
+                100, 200,
+                40, 2, 6
+        ));
+        logs.add(new FoodLog(
+                LocalDate.of(2025, 4,
+                        1), "Dinner", "Apple",
+                150, 78,
+                20, 0.5, 1
+        ));
 
-        cmd.execute();
+        when(tracker.getFoodLogsForDate(LocalDate.of(
+                2025, 4, 1)))
+                .thenReturn(logs);
+
+        ViewLoggedFoodsCommand command = new ViewLoggedFoodsCommand(
+                tracker, inputProvider, outputWriter
+        );
+        command.execute();
+
+        verify(outputWriter).write(">6. View Foods Logged");
+        verify(outputWriter).write(">When (date):\n-");
+        verify(outputWriter).write("Foods logged on 2025-04-01:");
+        verify(outputWriter).write("- " + logs.get(0));
+        verify(outputWriter).write("- " + logs.get(1));
+        verifyNoMoreInteractions(outputWriter);
     }
 
     @Test
     void testExecuteNoLogs() {
-        MyFitnessTracker tracker = new MyFitnessTracker();
+        when(inputProvider.readLine()).thenReturn("2025-04-01");
 
-        String data = "2025-03-19\n";
-        Scanner scanner = new Scanner(
-                new ByteArrayInputStream(data.getBytes()));
-        ViewLoggedFoodsCommand cmd =
-                new ViewLoggedFoodsCommand(tracker, scanner);
-        Assertions.assertThrows(IllegalArgumentException.class, cmd::execute);
+        when(tracker.getFoodLogsForDate(LocalDate.of(
+                2025, 4, 1)))
+                .thenReturn(new ArrayList<>());
+
+        ViewLoggedFoodsCommand command = new ViewLoggedFoodsCommand(
+                tracker, inputProvider, outputWriter
+        );
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                command::execute,
+                "No foods logged for 2025-04-01"
+        );
+
+        verify(outputWriter).write(">6. View Foods Logged");
+        verify(outputWriter).write(">When (date):\n-");
+        verifyNoMoreInteractions(outputWriter);
     }
 }

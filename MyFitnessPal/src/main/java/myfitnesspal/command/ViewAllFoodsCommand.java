@@ -2,28 +2,33 @@ package myfitnesspal.command;
 
 import myfitnesspal.Food;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.utility.OutputWriter;
 
 import java.util.List;
 
 public final class ViewAllFoodsCommand implements Command {
     private final MyFitnessTracker tracker;
+    private final OutputWriter outputWriter;
 
-    public ViewAllFoodsCommand(MyFitnessTracker tracker) {
+    public ViewAllFoodsCommand(MyFitnessTracker tracker,
+                               OutputWriter outputWriter) {
         this.tracker = tracker;
+        this.outputWriter = outputWriter;
     }
 
     @Override
     public void execute() {
-        System.out.println(">4. View All Foods");
+        outputWriter.write(">4. View All Foods");
+
         List<Food> allFoods = tracker.getFoods();
         if (allFoods.isEmpty()) {
-            System.out.println("No foods found.");
+            outputWriter.write("No foods found.");
             return;
         }
 
         int index = 1;
-        for (Food f : allFoods) {
-            System.out.println(index + ". " + f);
+        for (Food food : allFoods) {
+            outputWriter.write(index + ". " + food);
             index++;
         }
     }

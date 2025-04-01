@@ -2,41 +2,44 @@ package myfitnesspal.command;
 
 import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.WaterIntake;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
- public final class CheckWaterCommand implements Command {
+public final class CheckWaterCommand implements Command {
     private final MyFitnessTracker tracker;
-    private final Scanner scanner;
+    private final InputProvider input;
+    private final OutputWriter output;
 
-    public CheckWaterCommand(MyFitnessTracker tracker, Scanner scanner) {
+    public CheckWaterCommand(MyFitnessTracker tracker,
+                             InputProvider input,
+                             OutputWriter output) {
         this.tracker = tracker;
-        this.scanner = scanner;
+        this.input = input;
+        this.output = output;
     }
 
     @Override
     public void execute() {
-        System.out.print(">When? -");
-        String rawDate = scanner.nextLine();
+        output.write(">When? -");
+        String rawDate = input.readLine();
 
         LocalDate date = Parser.parseDate(rawDate);
-
         List<WaterIntake> allWater = tracker.getWaterIntakes();
         List<WaterIntake> sameDate = allWater.stream()
                 .filter(w -> w.date().equals(date))
                 .toList();
 
         if (sameDate.isEmpty()) {
-            System.out.println(rawDate + ": No water intake recorded.");
+            output.write(rawDate + ": No water intake recorded.");
         } else {
-            System.out.println(rawDate + ":");
+            output.write(rawDate + ":");
             for (WaterIntake wi : sameDate) {
-                System.out.println("-> " + wi.amount() + " ml");
+                output.write("-> " + wi.amount() + " ml");
             }
         }
     }
-
 }

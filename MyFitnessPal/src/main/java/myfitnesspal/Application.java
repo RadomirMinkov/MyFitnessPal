@@ -1,13 +1,12 @@
 package myfitnesspal;
 
-import myfitnesspal.command.CheckWaterCommand;
 import myfitnesspal.command.Command;
-import myfitnesspal.command.CreateFoodCommand;
-import myfitnesspal.command.DrinkWaterCommand;
+import myfitnesspal.command.CommandType;
 import myfitnesspal.command.ExitCommand;
-import myfitnesspal.command.LogFoodCommand;
-import myfitnesspal.command.ViewAllFoodsCommand;
-import myfitnesspal.command.ViewLoggedFoodsCommand;
+import myfitnesspal.utility.ConsoleOutputWriter;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
+import myfitnesspal.utility.ScannerInputProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,60 +17,70 @@ public final class Application {
 
     private final MyFitnessTracker tracker;
     private final Scanner scanner;
+    private final InputProvider inputProvider;
+    private final OutputWriter outputWriter;
     private final Map<String, Command> commands;
     private boolean running;
 
-     public Application() {
+    public Application() {
         this.tracker = new MyFitnessTracker();
         tracker.load(FILE_NAME);
 
         this.scanner = new Scanner(System.in);
+        this.inputProvider = new ScannerInputProvider(scanner);
+        this.outputWriter = new ConsoleOutputWriter();
 
         this.commands = new HashMap<>();
-
-        commands.put("1", new DrinkWaterCommand(tracker, scanner, FILE_NAME));
-        commands.put("2", new CheckWaterCommand(tracker, scanner));
-        commands.put("3", new CreateFoodCommand(tracker, scanner, FILE_NAME));
-        commands.put("4", new ViewAllFoodsCommand(tracker));
-
-        commands.put("5", new LogFoodCommand(tracker, scanner, FILE_NAME));
-        commands.put("6", new ViewLoggedFoodsCommand(tracker, scanner));
-
-        commands.put("7", new ExitCommand(this::stop, tracker, FILE_NAME));
+        initCommands();
 
         this.running = true;
     }
 
-    public void run() {
+    private void initCommands() {
+        CommandType[] commandValues = CommandType.values();
+        for (int i = 0; i < commandValues.length; i++) {
+            CommandType commandType = commandValues[i];
+            commands.put(
+                    String.valueOf(i + 1),
+                    commandType.getCommand(tracker,
+                            inputProvider, outputWriter, FILE_NAME)
+            );
+        }
+        Command exitCommand = commands.get(String.valueOf(
+                CommandType.EXIT.ordinal() + 1));
+        if (exitCommand instanceof ExitCommand) {
+            ExitCommand e = (ExitCommand) exitCommand;
+            e.setOnExit(this::stop);
+        }
+    }
 
-            while (running) {
-                try {
+    public void run() {
+        while (running) {
+            try {
                 printMenu();
-                String choice = scanner.nextLine();
+                String choice = inputProvider.readLine();
                 Command command = commands.get(choice);
+
                 if (command != null) {
                     command.execute();
                 } else {
-                    System.out.println("Invalid input! Try again.");
+                    outputWriter.write("Invalid input! Try again.");
                 }
             } catch (Exception exception) {
-                    System.out.println(exception.getMessage());
-                }
+                outputWriter.write(exception.getMessage());
+            }
         }
-
         scanner.close();
-        System.out.println("Program stopped.");
+        outputWriter.write("Program stopped.");
     }
 
     private void printMenu() {
-        System.out.println(">1. Drink water");
-        System.out.println(">2. Check water");
-        System.out.println(">3. Create Food");
-        System.out.println(">4. View All Foods");
-        System.out.println(">5. Log Food");
-        System.out.println(">6. View Foods Logged");
-        System.out.println(">7. Exit");
-        System.out.print("-");
+        CommandType[] commandValues = CommandType.values();
+        for (int i = 0; i < commandValues.length; i++) {
+            outputWriter.writeln(">" + (i + 1) + ". "
+                    + commandValues[i].getDescription());
+        }
+        outputWriter.write("-");
     }
 
     private void stop() {

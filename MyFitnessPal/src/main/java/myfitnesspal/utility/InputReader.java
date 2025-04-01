@@ -15,7 +15,8 @@ public final class InputReader {
             try {
                 return Double.parseDouble(input);
             } catch (NumberFormatException e) {
-                System.out.print("Invalid number, try again:\n-");
+                throw new IllegalArgumentException(
+                        "Invalid number, try again:\n-", e);
             }
         }
     }
@@ -26,7 +27,8 @@ public final class InputReader {
             try {
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.print("Invalid integer, try again:\n-");
+                throw new IllegalArgumentException(
+                        "Invalid integer, try again:\n-", e);
             }
         }
     }

@@ -2,59 +2,66 @@ package myfitnesspal.command;
 
 import myfitnesspal.Food;
 import myfitnesspal.MyFitnessTracker;
-import myfitnesspal.utility.InputReader;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
 
-import java.util.Scanner;
-
- public final class CreateFoodCommand implements Command {
+public final class CreateFoodCommand implements Command {
     private final MyFitnessTracker tracker;
-    private final Scanner scanner;
+    private final InputProvider inputProvider;
+    private final OutputWriter outputWriter;
     private final String fileName;
-    private final InputReader inputReader;
 
     public CreateFoodCommand(MyFitnessTracker tracker,
-                             Scanner scanner, String fileName) {
+                             InputProvider inputProvider,
+                             OutputWriter outputWriter,
+                             String fileName) {
         this.tracker = tracker;
-        this.scanner = scanner;
+        this.inputProvider = inputProvider;
+        this.outputWriter = outputWriter;
         this.fileName = fileName;
-        this.inputReader = new InputReader(scanner);
     }
 
     @Override
     public void execute() {
-        System.out.println(">3. Create Food");
+        outputWriter.write(">3. Create Food");
 
-        System.out.print(">Name:\n-");
-        String name = scanner.nextLine();
+        outputWriter.write(">Name:\n-");
+        String name = inputProvider.readLine();
 
-        System.out.print(">Description(optional):\n-");
-        String description = scanner.nextLine();
+        outputWriter.write(">Description(optional):\n-");
+        String description = inputProvider.readLine();
 
-        System.out.print(">Serving Size (g):\n-");
-        double servingSize = inputReader.readDouble();
+        outputWriter.write(">Serving Size (g):\n-");
+        double servingSize = Double.parseDouble(inputProvider.readLine());
 
-        System.out.print(">Servings per container:\n-");
-        int servings = inputReader.readInt();
+        outputWriter.write(">Servings per container:\n-");
+        int servings = Integer.parseInt(inputProvider.readLine());
 
-        System.out.print(">Amount per serving:");
-        System.out.print("\n>Calories (kcal):\n-");
-        double calories = inputReader.readDouble();
+        outputWriter.write(">Amount per serving:");
+        outputWriter.write("\n>Calories (kcal):\n-");
+        double calories = Double.parseDouble(inputProvider.readLine());
 
-        System.out.print(">Carbs (g):\n-");
-        double carbs = inputReader.readDouble();
+        outputWriter.write(">Carbs (g):\n-");
+        double carbs = Double.parseDouble(inputProvider.readLine());
 
-        System.out.print(">Fat (g):\n-");
-        double fat = inputReader.readDouble();
+        outputWriter.write(">Fat (g):\n-");
+        double fat = Double.parseDouble(inputProvider.readLine());
 
-        System.out.print(">Protein (g):\n-");
-        double protein = inputReader.readDouble();
+        outputWriter.write(">Protein (g):\n-");
+        double protein = Double.parseDouble(inputProvider.readLine());
 
-        Food newFood = new Food(name, description, servingSize, servings,
-                calories, carbs, fat, protein);
-
+        Food newFood = new Food(
+                name,
+                description,
+                servingSize,
+                servings,
+                calories,
+                carbs,
+                fat,
+                protein
+        );
         tracker.addItem(newFood);
 
-        System.out.println(">Food created successfully!");
+        outputWriter.write(">Food created successfully!");
     }
-
 }

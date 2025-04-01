@@ -2,45 +2,48 @@ package myfitnesspal.command;
 
 import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.WaterIntake;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;
 
 import java.time.LocalDate;
-import java.util.Scanner;
 
- public final class DrinkWaterCommand implements Command {
+public final class DrinkWaterCommand implements Command {
     private final MyFitnessTracker tracker;
-    private final Scanner scanner;
+    private final InputProvider inputProvider;
+    private final OutputWriter outputWriter;
     private final String fileName;
 
     public DrinkWaterCommand(MyFitnessTracker tracker,
-                             Scanner scanner,
+                             InputProvider inputProvider,
+                             OutputWriter outputWriter,
                              String fileName) {
         this.tracker = tracker;
-        this.scanner = scanner;
+        this.inputProvider = inputProvider;
+        this.outputWriter = outputWriter;
         this.fileName = fileName;
     }
 
     @Override
     public void execute() {
-        System.out.print(">When? -");
-        String rawDate = scanner.nextLine();
-
+        outputWriter.write(">When? -");
+        String rawDate = inputProvider.readLine();
         LocalDate date = Parser.parseDate(rawDate);
 
+        outputWriter.write("\n>How much?(ml) -");
+        String amountStr = inputProvider.readLine();
 
-        System.out.print(">How much?(ml) -");
-        String amountStr = scanner.nextLine();
         int amount;
         try {
             amount = Integer.parseInt(amountStr);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid number: " + amountStr);
+            throw new IllegalArgumentException(
+                    "Invalid number: " + amountStr, e);
         }
 
         WaterIntake waterIntake = new WaterIntake(date, amount);
         tracker.addItem(waterIntake);
 
-        System.out.println(">Water intake recorded successfully!");
+        outputWriter.write("\n>Water intake recorded successfully!");
     }
-
 }

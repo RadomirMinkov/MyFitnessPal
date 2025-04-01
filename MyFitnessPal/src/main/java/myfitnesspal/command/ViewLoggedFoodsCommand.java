@@ -2,28 +2,32 @@ package myfitnesspal.command;
 
 import myfitnesspal.FoodLog;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.utility.InputProvider;
+import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
 
 public final class ViewLoggedFoodsCommand implements Command {
     private final MyFitnessTracker tracker;
-    private final Scanner scanner;
+    private final InputProvider inputProvider;
+    private final OutputWriter outputWriter;
 
-    public ViewLoggedFoodsCommand(MyFitnessTracker tracker, Scanner scanner) {
+    public ViewLoggedFoodsCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter) {
         this.tracker = tracker;
-        this.scanner = scanner;
+        this.inputProvider = inputProvider;
+        this.outputWriter = outputWriter;
     }
 
     @Override
     public void execute() {
-        System.out.println(">6. View Foods Logged");
+        outputWriter.write(">6. View Foods Logged");
 
-        System.out.print(">When (date):\n-");
-        String rawDate = scanner.nextLine();
-
+        outputWriter.write(">When (date):\n-");
+        String rawDate = inputProvider.readLine().trim();
         LocalDate date = Parser.parseDate(rawDate);
 
         List<FoodLog> logs = tracker.getFoodLogsForDate(date);
@@ -32,9 +36,9 @@ public final class ViewLoggedFoodsCommand implements Command {
                     "No foods logged for " + rawDate);
         }
 
-        System.out.println("Foods logged on " + rawDate + ":");
+        outputWriter.write("Foods logged on " + rawDate + ":");
         for (FoodLog log : logs) {
-            System.out.println("- " + log);
+            outputWriter.write("- " + log);
         }
     }
 }
