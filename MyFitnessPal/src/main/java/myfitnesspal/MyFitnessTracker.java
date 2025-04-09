@@ -68,4 +68,13 @@ public final class MyFitnessTracker {
                 .filter(log -> log.date().equals(date))
                 .toList();
     }
+    public List<Meal> getMeals() {
+        List<Meal> mealList = new ArrayList<>();
+        for (Trackable t : items) {
+            if (t instanceof Meal m) {
+                mealList.add(m);
+            }
+        }
+        return mealList;
+    }
 }

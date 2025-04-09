@@ -2,11 +2,15 @@ package myfitnesspal.utility;
 
 import myfitnesspal.Food;
 import myfitnesspal.FoodLog;
+import myfitnesspal.Meal;
+import myfitnesspal.MealItem;
 import myfitnesspal.WaterIntake;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class Parser {
 
@@ -29,10 +33,46 @@ public final class Parser {
             case "WATER" -> parseWater(data);
             case "FOOD"  -> parseFood(data);
             case "FOOD_LOG" -> parseFoodLog(data);
+            case "MEAL" -> parseMeal(data);
             default      -> null;
         };
     }
 
+    private static Meal parseMeal(String data) {
+        String[] parts = data.split(";");
+        if (parts.length < 8) {
+            throw new IllegalArgumentException(
+                    "Too few arguments for MEAL");
+        }
+
+        String name = parts[0];
+        String description = parts[1];
+
+        double totalGrams = Double.parseDouble(parts[2]);
+        double totalCalories = Double.parseDouble(parts[3]);
+        double totalCarbs = Double.parseDouble(parts[4]);
+        double totalFat = Double.parseDouble(parts[5]);
+        double totalProtein = Double.parseDouble(parts[6]);
+
+        int itemCount = Integer.parseInt(parts[7]);
+
+        if (parts.length < 8 + itemCount * 2) {
+            throw new IllegalArgumentException(
+                    "Invalid MEAL item count/format");
+        }
+
+        List<MealItem> mealItems = new ArrayList<>();
+        int idx = 8;
+        for (int i = 0; i < itemCount; i++) {
+            String fName = parts[idx++];
+            double servings = Double.parseDouble(parts[idx++]);
+            mealItems.add(new MealItem(fName, servings));
+        }
+
+        return new Meal(name, description, totalGrams,
+                totalCalories, totalCarbs,
+                totalFat, totalProtein, mealItems);
+    }
     private static WaterIntake parseWater(String data) {
 
         String[] parts = data.split(";");

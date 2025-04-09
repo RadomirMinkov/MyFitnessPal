@@ -59,14 +59,46 @@ public enum CommandType {
         }
     },
 
-    VIEW_LOGGED_FOODS("View Foods Logged") {
+    VIEW_ALL_LOGGED("View All Logged") {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
                                   OutputWriter outputWriter,
                                   String fileName) {
-            return new ViewLoggedFoodsCommand(tracker,
+            return new ViewAllLoggedCommand(tracker,
                     inputProvider, outputWriter);
+        }
+    },
+
+    CREATE_MEAL("Create Meal") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter,
+                                  String fileName) {
+            return new CreateMealCommand(tracker,
+                    inputProvider, outputWriter, fileName);
+        }
+    },
+
+    VIEW_ALL_MEALS("View All Meals") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter,
+                                  String fileName) {
+            return new ViewAllMealsCommand(tracker, outputWriter);
+        }
+    },
+
+    LOG_MEAL("Log Meal") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter,
+                                  String fileName) {
+            return new LogMealCommand(tracker, inputProvider,
+                    outputWriter, fileName);
         }
     },
 

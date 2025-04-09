@@ -33,12 +33,9 @@ public final class LogFoodCommand implements Command {
         Food chosenFood = chooseFood();
         double[] totals = promptTotals(chosenFood);
 
-        LocalDate date = promptDate();
-        String meal = promptMeal();
-
         FoodLog foodLog = new FoodLog(
-                date,
-                meal,
+                promptDate(),
+                promptMeal(),
                 chosenFood.name(),
                 totals[0],
                 totals[1],
