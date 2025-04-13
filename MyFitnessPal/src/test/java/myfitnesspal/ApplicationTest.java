@@ -29,7 +29,7 @@ class ApplicationTest {
 
     @Test
     void testRunExitImmediately() {
-        String userInput = "10\n";
+        String userInput = "13\n";
         System.setIn(new ByteArrayInputStream(userInput.getBytes()));
         Application app = new Application();
         app.run();
@@ -43,15 +43,17 @@ class ApplicationTest {
         Assertions.assertTrue(output.contains("7. Create Meal"));
         Assertions.assertTrue(output.contains("8. View All Meals"));
         Assertions.assertTrue(output.contains("9. Log Meal"));
-        Assertions.assertTrue(output.contains("10. Exit"));
+        Assertions.assertTrue(output.contains("10. Create Recipe"));
+        Assertions.assertTrue(output.contains("11. View All Recipes"));
+        Assertions.assertTrue(output.contains("12. Log Recipe"));
+        Assertions.assertTrue(output.contains("13. Exit"));
         Assertions.assertTrue(output.contains("Program stopped."));
     }
 
     @Test
     void testRunInvalidCommandAndThenExit() {
-        String userInput = "x\n10\n";
-        System.setIn(
-                new ByteArrayInputStream(userInput.getBytes()));
+        String userInput = "xyz\n13\n";
+        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
         Application app = new Application();
         app.run();
         String output = testOut.toString();
@@ -66,7 +68,7 @@ class ApplicationTest {
                 "1",
                 "2025-03-19",
                 "500",
-                "10"
+                "13"
         ) + "\n";
         System.setIn(new ByteArrayInputStream(userInput.getBytes()));
         Application app = new Application();
@@ -90,7 +92,7 @@ class ApplicationTest {
                 "30",
                 "10",
                 "15",
-                "10"
+                "13"
         ) + "\n";
         System.setIn(new ByteArrayInputStream(userInput.getBytes()));
         Application app = new Application();
@@ -110,7 +112,7 @@ class ApplicationTest {
         String userInput = String.join("\n",
                 "6",
                 "2025-01-01",
-                "10"
+                "13"
         ) + "\n";
         System.setIn(new ByteArrayInputStream(userInput.getBytes()));
         Application app = new Application();
@@ -120,6 +122,23 @@ class ApplicationTest {
                 .contains("No foods logged for 2025-01-01")
                 || output.contains("No foods logged for 2025/01/01"));
         Assertions.assertTrue(output.contains("No water logged"));
+        Assertions.assertTrue(output.contains("Program stopped."));
+    }
+
+    @Test
+    void testRunInvalidChoiceMultipleTimesThenExit() {
+        String userInput = String.join("\n",
+                "abc",
+                "999",
+                "13"
+        ) + "\n";
+        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
+        Application app = new Application();
+        app.run();
+        String output = testOut.toString();
+        Assertions.assertTrue(output.contains("Invalid input! Try again."));
+        Assertions.assertTrue(output
+                .split("Invalid input! Try again.").length > 2);
         Assertions.assertTrue(output.contains("Program stopped."));
     }
 }

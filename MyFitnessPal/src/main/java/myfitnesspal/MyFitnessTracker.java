@@ -77,4 +77,13 @@ public final class MyFitnessTracker {
         }
         return mealList;
     }
+    public List<Recipe> getRecipes() {
+        List<Recipe> list = new ArrayList<>();
+        for (Trackable t : items) {
+            if (t instanceof Recipe r) {
+                list.add(r);
+            }
+        }
+        return list;
+    }
 }

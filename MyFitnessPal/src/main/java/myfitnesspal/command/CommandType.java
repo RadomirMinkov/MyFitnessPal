@@ -101,7 +101,35 @@ public enum CommandType {
                     outputWriter, fileName);
         }
     },
-
+    CREATE_RECIPE("Create Recipe") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter,
+                                  String fileName) {
+            return new CreateRecipeCommand(tracker,
+                    inputProvider, outputWriter, fileName);
+        }
+    },
+    VIEW_ALL_RECIPES("View All Recipes") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter,
+                                  String fileName) {
+            return new ViewAllRecipesCommand(tracker, outputWriter);
+        }
+    },
+    LOG_RECIPE("Log Recipe") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter,
+                                  String fileName) {
+            return new LogRecipeCommand(tracker,
+                    inputProvider, outputWriter, fileName);
+        }
+    },
     EXIT("Exit") {
         @Override
         public Command getCommand(MyFitnessTracker tracker,

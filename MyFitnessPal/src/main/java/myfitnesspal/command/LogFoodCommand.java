@@ -142,4 +142,5 @@ public final class LogFoodCommand implements Command {
                 totalProtein
         };
     }
+
 }

@@ -5,6 +5,8 @@ import myfitnesspal.FoodLog;
 import myfitnesspal.Meal;
 import myfitnesspal.MealItem;
 import myfitnesspal.WaterIntake;
+import myfitnesspal.Recipe;
+import myfitnesspal.RecipeItem;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,9 +36,45 @@ public final class Parser {
             case "FOOD"  -> parseFood(data);
             case "FOOD_LOG" -> parseFoodLog(data);
             case "MEAL" -> parseMeal(data);
+            case "RECIPE" -> parseRecipe(data);
             default      -> null;
         };
     }
+    private static Recipe parseRecipe(String data) {
+        String[] parts = data.split(";");
+        if (parts.length < 10) {
+            throw new IllegalArgumentException("Too few arguments for RECIPE");
+        }
+        String name = parts[0];
+        String description = parts[1];
+        int servings = Integer.parseInt(parts[2]);
+        double totalGrams = Double.parseDouble(parts[3]);
+        double totalCals = Double.parseDouble(parts[4]);
+        double totalCarbs = Double.parseDouble(parts[5]);
+        double totalFat = Double.parseDouble(parts[6]);
+        double totalProtein = Double.parseDouble(parts[7]);
+        int itemCount = Integer.parseInt(parts[8]);
+
+        if (parts.length < 9 + itemCount * 2) {
+            throw new IllegalArgumentException(
+                    "Invalid RECIPE item count/format");
+        }
+        List<RecipeItem> ingredients = new ArrayList<>();
+        int idx = 9;
+        for (int i = 0; i < itemCount; i++) {
+            String ingredientName = parts[idx++];
+            double ingredientsServings =
+                    Double.parseDouble(parts[idx++]);
+            ingredients.add(new RecipeItem(ingredientName,
+                    ingredientsServings));
+        }
+        return new Recipe(
+                name, description, servings,
+                totalGrams, totalCals, totalCarbs,
+                totalFat, totalProtein, ingredients
+        );
+    }
+
 
     private static Meal parseMeal(String data) {
         String[] parts = data.split(";");
@@ -64,9 +102,9 @@ public final class Parser {
         List<MealItem> mealItems = new ArrayList<>();
         int idx = 8;
         for (int i = 0; i < itemCount; i++) {
-            String fName = parts[idx++];
-            double servings = Double.parseDouble(parts[idx++]);
-            mealItems.add(new MealItem(fName, servings));
+            String ingredientName = parts[idx++];
+            double ingredientsServings = Double.parseDouble(parts[idx++]);
+            mealItems.add(new MealItem(ingredientName, ingredientsServings));
         }
 
         return new Meal(name, description, totalGrams,

@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.startsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -114,5 +116,101 @@ class LogFoodCommandTest {
         verify(outputWriter).write("1. " + foods.get(0));
         verify(outputWriter).write(">Which food (food id):\n-");
 
+    }
+    @Test
+    void testPromptTotalsWithGramApproach() {
+        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
+        InputProvider inputProvider = mock(InputProvider.class);
+        OutputWriter outputWriter = mock(OutputWriter.class);
+
+        List<Food> foods = Collections.singletonList(
+                new Food("Rice",
+                        "desc", 100,
+                        1, 130,
+                        28, 0.3, 2.5)
+        );
+        when(tracker.getFoods()).thenReturn(foods);
+
+        when(inputProvider.readLine())
+                .thenReturn("1")
+                .thenReturn("")
+                .thenReturn("200")
+                .thenReturn("2025-10-01")
+                .thenReturn("Breakfast");
+
+        LogFoodCommand command = new LogFoodCommand(tracker,
+                inputProvider, outputWriter, "dummy.txt");
+        command.execute();
+
+        verify(outputWriter).write("(Either)\n>Number of serving(s):\n-");
+        verify(outputWriter).write(">Serving size (g):\n-");
+        verify(outputWriter).write("Logged successfully:\n"
+                + new FoodLog(
+                        LocalDate.of(2025, 10, 1),
+                        "Breakfast",
+                        "Rice",
+                        200,
+                        260.0,
+                        56.0,
+                        0.6,
+                        5.0
+                )
+        );
+    }
+
+    @Test
+    void testPromptTotalsInvalidGrams() {
+        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
+        InputProvider inputProvider = mock(InputProvider.class);
+        OutputWriter outputWriter = mock(OutputWriter.class);
+
+        when(tracker.getFoods()).thenReturn(
+                List.of(new Food("Pasta",
+                        "", 100,
+                        1, 350,
+                        70, 2, 9))
+        );
+        when(inputProvider.readLine())
+                .thenReturn("1")
+                .thenReturn("")
+                .thenReturn("-50");
+
+        LogFoodCommand command = new LogFoodCommand(tracker,
+                inputProvider, outputWriter,
+                "testfile.txt");
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                command::execute,
+                "Invalid gram amount!");
+        verify(outputWriter).write("(Either)\n>Number of serving(s):\n-");
+        verify(outputWriter).write(">Serving size (g):\n-");
+    }
+
+    @Test
+    void testPromptMealEmpty() {
+        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
+        InputProvider inputProvider = mock(InputProvider.class);
+        OutputWriter outputWriter = mock(OutputWriter.class);
+
+        when(tracker.getFoods()).thenReturn(
+                List.of(new Food("Chicken",
+                        "desc", 100,
+                        1, 200,
+                        0, 10, 25))
+        );
+        when(inputProvider.readLine())
+                .thenReturn("1")
+                .thenReturn("2")
+                .thenReturn("2025-06-01")
+                .thenReturn("");
+
+        LogFoodCommand command = new LogFoodCommand(tracker,
+                inputProvider, outputWriter,
+                "testfile.txt");
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                command::execute,
+                "Invalid meal type!");
+        verify(outputWriter, never()).write("Logged successfully:\n");
     }
 }
