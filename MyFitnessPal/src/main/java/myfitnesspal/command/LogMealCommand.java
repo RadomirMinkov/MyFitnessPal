@@ -30,17 +30,31 @@ public final class LogMealCommand implements Command {
     @Override
     public void execute() {
         outputWriter.write(">9. Log Meal");
+        LocalDate date = promptDate();
+        String mealType = promptMealType();
+        Meal chosenMeal = pickMeal();
+        double mealServings = promptMealServings();
+        logMealItems(date, mealType, chosenMeal, mealServings);
+        outputWriter.write("Logged meal successfully: "
+                + chosenMeal.name() + " x " + mealServings + " serving(s).");
+    }
 
+    private LocalDate promptDate() {
         outputWriter.write(">When (date):\n-");
         String rawDate = inputProvider.readLine().trim();
-        LocalDate date = Parser.parseDate(rawDate);
+        return Parser.parseDate(rawDate);
+    }
 
+    private String promptMealType() {
         outputWriter.write(">When (meal) [Breakfast/Lunch/Snacks/Dinner]:\n-");
         String mealType = inputProvider.readLine().trim();
         if (mealType.isEmpty()) {
             throw new IllegalArgumentException("Invalid meal type!");
         }
+        return mealType;
+    }
 
+    private Meal pickMeal() {
         List<Meal> allMeals = tracker.getMeals();
         if (allMeals.isEmpty()) {
             throw new IllegalArgumentException(
@@ -51,18 +65,26 @@ public final class LogMealCommand implements Command {
         }
         outputWriter.write(">Which meal (meal id):\n-");
         String line = inputProvider.readLine().trim();
+        int chosenId = parseMealId(line, allMeals.size());
+        Meal chosenMeal = allMeals.get(chosenId - 1);
+        outputWriter.write(">" + chosenId + ". " + chosenMeal);
+        return chosenMeal;
+    }
+
+    private int parseMealId(String line, int max) {
         int chosenId;
         try {
             chosenId = Integer.parseInt(line);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid meal ID: " + line, e);
         }
-        if (chosenId < 1 || chosenId > allMeals.size()) {
+        if (chosenId < 1 || chosenId > max) {
             throw new IllegalArgumentException("Invalid meal ID.");
         }
-        Meal chosenMeal = allMeals.get(chosenId - 1);
-        outputWriter.write(">" + chosenId + ". " + chosenMeal);
+        return chosenId;
+    }
 
+    private double promptMealServings() {
         outputWriter.write(">Number of serving(s) for this meal:\n-");
         String servingsStr = inputProvider.readLine().trim();
         double mealServings;
@@ -75,10 +97,15 @@ public final class LogMealCommand implements Command {
         if (mealServings <= 0) {
             throw new IllegalArgumentException("Servings must be > 0");
         }
+        return mealServings;
+    }
 
+    private void logMealItems(LocalDate date,
+                              String mealType,
+                              Meal chosenMeal,
+                              double mealServings) {
         for (MealItem mi : chosenMeal.items()) {
             double finalServings = mi.servings() * mealServings;
-
             var matchedFood = tracker.getFoods().stream()
                     .filter(f -> f.name().equals(mi.foodName()))
                     .findFirst()
@@ -107,9 +134,5 @@ public final class LogMealCommand implements Command {
             );
             tracker.addItem(foodLog);
         }
-
-        outputWriter.write("Logged meal successfully: " + chosenMeal.name()
-                + " x " + mealServings + " serving(s).");
-
     }
 }

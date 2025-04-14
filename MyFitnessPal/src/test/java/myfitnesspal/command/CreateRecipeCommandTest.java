@@ -13,8 +13,9 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,8 +34,8 @@ class CreateRecipeCommandTest {
         tracker = mock(MyFitnessTracker.class);
         inputProvider = mock(InputProvider.class);
         outputWriter = mock(OutputWriter.class);
-        command = new CreateRecipeCommand(tracker,
-                inputProvider, outputWriter, "file.txt");
+        command = new CreateRecipeCommand(tracker, inputProvider,
+                outputWriter, "file.txt");
     }
 
     @Test
@@ -46,8 +47,7 @@ class CreateRecipeCommandTest {
                 .thenReturn("6");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "No foods in the system. Create a food first!");
+                command::execute);
         verify(outputWriter, atLeastOnce()).write(anyString());
         verify(tracker, never()).addItem(any());
     }
@@ -61,8 +61,7 @@ class CreateRecipeCommandTest {
                 .thenReturn("-2");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Servings must be a positive integer");
+                command::execute);
         verify(outputWriter, atLeastOnce()).write(anyString());
         verify(tracker, never()).addItem(any());
     }
@@ -71,7 +70,8 @@ class CreateRecipeCommandTest {
     void testExecuteSingleFood() {
         Food f = new Food("Tomato", "Fresh",
                 100, 1,
-                20, 4, 0, 1);
+                20, 4,
+                0, 1);
         when(tracker.getFoods()).thenReturn(List.of(f));
         when(inputProvider.readLine())
                 .thenReturn("TomatoSoup")
@@ -132,23 +132,25 @@ class CreateRecipeCommandTest {
         verify(tracker).addItem(captor.capture());
         Recipe created = captor.getValue();
         Assertions.assertEquals("Omelet", created.name());
-        Assertions.assertEquals("Egg + Milk",
-                created.description());
+        Assertions.assertEquals("Egg + Milk", created.description());
         Assertions.assertEquals(4, created.servings());
         List<RecipeItem> items = created.items();
         Assertions.assertEquals(2, items.size());
         Assertions.assertEquals("Egg", items.get(0).foodName());
-        Assertions.assertEquals(3.0,
-                items.get(0).servings(), 0.001);
-        Assertions.assertEquals("Milk",
-                items.get(1).foodName());
+        Assertions.assertEquals(3.0, items.get(0)
+                .servings(), 0.001);
+        Assertions.assertEquals("Milk", items.get(1).foodName());
         Assertions.assertEquals(1.5,
                 items.get(1).servings(), 0.001);
 
-        double totalGrams = (f1.servingSize() * 3) + (f2.servingSize() * 1.5);
-        double totalCals  = (f1.calories()    * 3) + (f2.calories()    * 1.5);
-        double totalFat   = (f1.fat()         * 3) + (f2.fat()         * 1.5);
-        double totalProt  = (f1.protein()     * 3) + (f2.protein()     * 1.5);
+        double totalGrams = (f1.servingSize() * 3)
+                + (f2.servingSize() * 1.5);
+        double totalCals  = (f1.calories()    * 3)
+                + (f2.calories()    * 1.5);
+        double totalFat   = (f1.fat()         * 3)
+                + (f2.fat()         * 1.5);
+        double totalProt  = (f1.protein()     * 3)
+                + (f2.protein()     * 1.5);
 
         Assertions.assertEquals(totalGrams, created.totalGrams(), 0.001);
         Assertions.assertEquals(totalCals, created.totalCalories(), 0.001);
@@ -160,7 +162,8 @@ class CreateRecipeCommandTest {
     void testExecuteInvalidFoodId() {
         Food f = new Food("Bread", "",
                 100, 1,
-                250, 50, 2, 8);
+                250, 50,
+                2, 8);
         when(tracker.getFoods()).thenReturn(List.of(f));
         when(inputProvider.readLine())
                 .thenReturn("Sandwich")
@@ -169,16 +172,15 @@ class CreateRecipeCommandTest {
                 .thenReturn("99");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Invalid food ID range");
+                command::execute);
         verify(tracker, never()).addItem(any());
     }
 
     @Test
     void testExecuteInvalidSubServings() {
         Food f = new Food("Cheese", "",
-                50, 1,
-                200, 1, 15, 10);
+                50, 1, 200,
+                1, 15, 10);
         when(tracker.getFoods()).thenReturn(List.of(f));
         when(inputProvider.readLine())
                 .thenReturn("CheeseDish")
@@ -188,16 +190,15 @@ class CreateRecipeCommandTest {
                 .thenReturn("-2");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Servings must be positive");
+                command::execute);
         verify(tracker, never()).addItem(any());
     }
 
     @Test
     void testStopGatheringItemsOnNo() {
-        Food f = new Food("Potato", "",
-                100, 1,
-                75, 17, 0.1, 2);
+        Food f = new Food("Potato", "", 100,
+                1, 75,
+                17, 0.1, 2);
         when(tracker.getFoods()).thenReturn(List.of(f));
         when(inputProvider.readLine())
                 .thenReturn("SimplePotatoes")
@@ -209,13 +210,13 @@ class CreateRecipeCommandTest {
 
         command.execute();
 
-        ArgumentCaptor<Recipe> captor =
-                ArgumentCaptor.forClass(Recipe.class);
+        ArgumentCaptor<Recipe> captor = ArgumentCaptor.forClass(Recipe.class);
         verify(tracker).addItem(captor.capture());
         Recipe r = captor.getValue();
         Assertions.assertEquals("SimplePotatoes", r.name());
         Assertions.assertEquals(1, r.items().size());
         Assertions.assertEquals("Potato", r.items().get(0).foodName());
-        Assertions.assertEquals(2.0, r.items().get(0).servings(), 0.001);
+        Assertions.assertEquals(2.0, r.items()
+                .get(0).servings(), 0.001);
     }
 }

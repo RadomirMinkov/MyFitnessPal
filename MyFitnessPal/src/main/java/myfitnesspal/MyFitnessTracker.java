@@ -6,6 +6,7 @@ import myfitnesspal.utility.Trackable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class MyFitnessTracker {
     private final List<Trackable> items = new ArrayList<>();
@@ -35,55 +36,39 @@ public final class MyFitnessTracker {
     }
 
     public List<WaterIntake> getWaterIntakes() {
-        List<WaterIntake> waterList = new ArrayList<>();
-        for (Trackable t : items) {
-            if (t instanceof WaterIntake wi) {
-                waterList.add(wi);
-            }
-        }
-        return waterList;
+        return items.stream()
+                .filter(WaterIntake.class::isInstance)
+                .map(WaterIntake.class::cast)
+                .collect(Collectors.toList());
     }
 
     public List<Food> getFoods() {
-        List<Food> foodList = new ArrayList<>();
-        for (Trackable t : items) {
-            if (t instanceof Food f) {
-                foodList.add(f);
-            }
-        }
-        return foodList;
+        return items.stream()
+                .filter(Food.class::isInstance)
+                .map(Food.class::cast)
+                .collect(Collectors.toList());
     }
     public List<FoodLog> getFoodLogs() {
-        List<FoodLog> logs = new ArrayList<>();
-        for (Trackable t : items) {
-            if (t instanceof FoodLog fl) {
-                logs.add(fl);
-            }
-        }
-        return logs;
+        return items.stream()
+                .filter(FoodLog.class::isInstance)
+                .map(FoodLog.class::cast)
+                .collect(Collectors.toList());
     }
     public List<FoodLog> getFoodLogsForDate(java.time.LocalDate date) {
-        return getFoodLogs()
-                .stream()
+        return getFoodLogs().stream()
                 .filter(log -> log.date().equals(date))
-                .toList();
+                .collect(Collectors.toList());
     }
     public List<Meal> getMeals() {
-        List<Meal> mealList = new ArrayList<>();
-        for (Trackable t : items) {
-            if (t instanceof Meal m) {
-                mealList.add(m);
-            }
-        }
-        return mealList;
+        return items.stream()
+                .filter(Meal.class::isInstance)
+                .map(Meal.class::cast)
+                .collect(Collectors.toList());
     }
     public List<Recipe> getRecipes() {
-        List<Recipe> list = new ArrayList<>();
-        for (Trackable t : items) {
-            if (t instanceof Recipe r) {
-                list.add(r);
-            }
-        }
-        return list;
+        return items.stream()
+                .filter(Recipe.class::isInstance)
+                .map(Recipe.class::cast)
+                .collect(Collectors.toList());
     }
 }
