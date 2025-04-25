@@ -1,6 +1,5 @@
-package myfitnesspal;
+package myfitnesspal.items;
 
-import myfitnesspal.utility.Trackable;
 
 public record Food(String name, String description,
                    double servingSize, int servingsPerContainer,
@@ -24,5 +23,9 @@ public record Food(String name, String description,
                 + carbs + "g, "
                 + fat + "g, "
                 + protein + "g)";
+    }
+    @Override
+    public Trackable getTrackableType() {
+        return this;
     }
 }

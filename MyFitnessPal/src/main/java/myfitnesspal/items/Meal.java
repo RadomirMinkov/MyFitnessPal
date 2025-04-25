@@ -1,6 +1,4 @@
-package myfitnesspal;
-
-import myfitnesspal.utility.Trackable;
+package myfitnesspal.items;
 
 import java.util.List;
 
@@ -34,6 +32,11 @@ public record Meal(
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public Trackable getTrackableType() {
+        return this;
     }
 
     @Override

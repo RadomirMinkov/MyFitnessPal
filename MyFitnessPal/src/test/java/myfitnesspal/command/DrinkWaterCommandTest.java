@@ -1,7 +1,7 @@
 package myfitnesspal.command;
 
 import myfitnesspal.MyFitnessTracker;
-import myfitnesspal.WaterIntake;
+import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.Assertions;

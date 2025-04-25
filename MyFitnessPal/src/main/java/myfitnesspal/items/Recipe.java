@@ -1,6 +1,4 @@
-package myfitnesspal;
-
-import myfitnesspal.utility.Trackable;
+package myfitnesspal.items;
 
 import java.util.List;
 
@@ -50,5 +48,10 @@ public record Recipe(
                 name,
                 gramsPer, calsPer, carbsPer, fatPer, proteinPer
         );
+    }
+
+    @Override
+    public Trackable getTrackableType() {
+        return this;
     }
 }

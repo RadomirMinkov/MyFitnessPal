@@ -1,6 +1,6 @@
 package myfitnesspal.command;
 
-import myfitnesspal.Meal;
+import myfitnesspal.items.Meal;
 import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.utility.OutputWriter;
 

@@ -1,5 +1,8 @@
 package myfitnesspal;
 
+import myfitnesspal.items.Food;
+import myfitnesspal.items.FoodLog;
+import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.FileManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

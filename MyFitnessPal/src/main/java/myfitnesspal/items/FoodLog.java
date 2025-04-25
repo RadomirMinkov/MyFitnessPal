@@ -1,6 +1,5 @@
-package myfitnesspal;
+package myfitnesspal.items;
 
-import myfitnesspal.utility.Trackable;
 
 import java.time.LocalDate;
 
@@ -29,5 +28,10 @@ public record FoodLog(LocalDate date,
                 "%sg %s (%.0f kcal; %.2fg, %.2fg, %.2fg) [Meal: %s, Date: %s]",
                 totalGrams, foodName, totalCalories, totalCarbs, totalFat,
                 totalProtein, meal, date);
+    }
+
+    @Override
+    public Trackable getTrackableType() {
+        return this;
     }
 }

@@ -1,6 +1,6 @@
 package myfitnesspal.command;
 
-import myfitnesspal.Food;
+import myfitnesspal.items.Food;
 import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.BeforeEach;

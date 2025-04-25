@@ -1,4 +1,4 @@
-package myfitnesspal;
+package myfitnesspal.items;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -76,5 +76,13 @@ class RecipeTest {
                 recipe.toString());
         Assertions.assertTrue(recipe.toFileString().contains(
                 ";0.0;0.0;0.0;0.0;0.0;0;"));
+    }
+    @Test
+    void testGetTrackableType() {
+        Recipe recipe = new Recipe("Cake", "desc",
+                4, 800, 1600, 200, 100, 80, List.of());
+        Trackable type = recipe.getTrackableType();
+        Assertions.assertTrue(type instanceof Recipe);
+        Assertions.assertEquals(recipe, type);
     }
 }

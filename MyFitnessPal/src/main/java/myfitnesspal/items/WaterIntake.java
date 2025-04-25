@@ -1,6 +1,5 @@
-package myfitnesspal;
+package myfitnesspal.items;
 
-import myfitnesspal.utility.Trackable;
 
 import java.time.LocalDate;
 
@@ -14,5 +13,10 @@ public record WaterIntake(LocalDate date, int amount) implements Trackable {
     @Override
     public String toString() {
         return "Water on " + date + ": " + amount + " ml";
+    }
+
+    @Override
+    public Trackable getTrackableType() {
+        return this;
     }
 }

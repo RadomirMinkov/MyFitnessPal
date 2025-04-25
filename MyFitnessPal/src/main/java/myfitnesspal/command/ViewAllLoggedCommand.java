@@ -1,8 +1,8 @@
 package myfitnesspal.command;
 
-import myfitnesspal.FoodLog;
+import myfitnesspal.items.FoodLog;
 import myfitnesspal.MyFitnessTracker;
-import myfitnesspal.WaterIntake;
+import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;

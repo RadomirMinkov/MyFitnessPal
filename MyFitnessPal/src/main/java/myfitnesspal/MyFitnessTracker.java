@@ -1,8 +1,13 @@
 package myfitnesspal;
 
+import myfitnesspal.items.Food;
+import myfitnesspal.items.FoodLog;
+import myfitnesspal.items.Meal;
+import myfitnesspal.items.Recipe;
+import myfitnesspal.items.Trackable;
+import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.FileManager;
 import myfitnesspal.utility.Parser;
-import myfitnesspal.utility.Trackable;
 
 import java.util.ArrayList;
 import java.util.List;

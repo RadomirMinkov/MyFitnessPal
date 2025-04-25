@@ -1,10 +1,11 @@
 package myfitnesspal.utility;
 
-import myfitnesspal.Food;
-import myfitnesspal.FoodLog;
-import myfitnesspal.Meal;
-import myfitnesspal.MealItem;
-import myfitnesspal.WaterIntake;
+import myfitnesspal.items.Food;
+import myfitnesspal.items.FoodLog;
+import myfitnesspal.items.Meal;
+import myfitnesspal.items.MealItem;
+import myfitnesspal.items.WaterIntake;
+import myfitnesspal.items.Trackable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

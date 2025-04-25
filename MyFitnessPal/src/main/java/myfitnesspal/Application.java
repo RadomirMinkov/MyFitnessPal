@@ -1,89 +1,151 @@
 package myfitnesspal;
 
+import myfitnesspal.command.ChangeUserCommand;
 import myfitnesspal.command.Command;
 import myfitnesspal.command.CommandType;
-import myfitnesspal.command.ExitCommand;
+import myfitnesspal.users.UserDatabase;
 import myfitnesspal.utility.ConsoleOutputWriter;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.ScannerInputProvider;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public final class Application {
-    private static final String FILE_NAME = "all_data.txt";
+        private static final String USER_DIR = "users";
+        private MyFitnessTracker tracker;
+        private final Scanner scanner = new Scanner(System.in);
+        private final InputProvider in = new ScannerInputProvider(scanner);
+        private final OutputWriter out = new ConsoleOutputWriter();
+        private final UserDatabase users = new UserDatabase();
+        private Map<String, Command> commands;
+        private String currentUser;
+        private boolean running;
 
-    private final MyFitnessTracker tracker;
-    private final Scanner scanner;
-    private final InputProvider inputProvider;
-    private final OutputWriter outputWriter;
-    private final Map<String, Command> commands;
-    private boolean running;
-
-    public Application() {
-        this.tracker = new MyFitnessTracker();
-        tracker.load(FILE_NAME);
-
-        this.scanner = new Scanner(System.in);
-        this.inputProvider = new ScannerInputProvider(scanner);
-        this.outputWriter = new ConsoleOutputWriter();
-
-        this.commands = new HashMap<>();
-        initCommands();
-
-        this.running = true;
-    }
-
-    private void initCommands() {
-        CommandType[] commandValues = CommandType.values();
-        for (int i = 0; i < commandValues.length; i++) {
-            CommandType commandType = commandValues[i];
-            commands.put(
-                    String.valueOf(i + 1),
-                    commandType.getCommand(tracker,
-                            inputProvider, outputWriter, FILE_NAME)
-            );
+        public Application() {
+            new File(USER_DIR).mkdirs();
+            loginLoop();
         }
-        Command exitCommand = commands.get(String.valueOf(
-                CommandType.EXIT.ordinal() + 1));
-        if (exitCommand instanceof ExitCommand) {
-            ExitCommand e = (ExitCommand) exitCommand;
-            e.setOnExit(this::stop);
-        }
-    }
 
-    public void run() {
-        while (running) {
-            try {
-                printMenu();
-                String choice = inputProvider.readLine();
-                Command command = commands.get(choice);
-
-                if (command != null) {
-                    command.execute();
-                } else {
-                    outputWriter.write("Invalid input! Try again.");
+        private void loginLoop() {
+            while (currentUser == null) {
+                out.write(">1. Login\n>2. Register\n>3. Exit\n-");
+                switch (in.readLine().trim()) {
+                    case "1" -> login();
+                    case "2" -> register();
+                    case "3" -> {
+                        return;
+                    }
+                    default -> out.writeln("Invalid!");
                 }
-            } catch (Exception exception) {
-                outputWriter.write(exception.getMessage());
+            }
+            startSession();
+        }
+
+        private void login() {
+            out.write("User:\n-");
+            String u = in.readLine().trim();
+            out.write("Pass:\n-");
+            String p = in.readLine().trim();
+            if (users.login(u, p)) {
+                currentUser = u;
+            } else {
+                out.writeln("Wrong credentials");
             }
         }
-        scanner.close();
-        outputWriter.write("Program stopped.");
-    }
 
-    private void printMenu() {
-        CommandType[] commandValues = CommandType.values();
-        for (int i = 0; i < commandValues.length; i++) {
-            outputWriter.writeln(">" + (i + 1) + ". "
-                    + commandValues[i].getDescription());
+        private void register() {
+            out.write("New user:\n-");
+            String u = in.readLine().trim();
+            if (users.userExists(u)) {
+                out.writeln("Exists");
+                return;
+            }
+            out.write("Pass:\n-");
+            String p = in.readLine().trim();
+            if (users.register(u, p)) {
+                out.writeln("Registered");
+            }
         }
-        outputWriter.write("-");
+        private void startSession() {
+            tracker = new MyFitnessTracker();
+            tracker.load(dataFile());
+            initCommands();
+            running = true;
+            while (running) {
+                try {
+                    printMenu();
+                    String c = in.readLine();
+                    Command cmd = commands.get(c);
+                    if (cmd != null) {
+                        cmd.execute();
+                    } else {
+                        out.write("Invalid input! Try again.");
+                    }
+                } catch (Exception e) {
+                    out.write(e.getMessage());
+                }
+            }
+        }
+
+    private void initCommands() {
+        commands = new HashMap<>();
+        for (CommandType ct : CommandType.values()) {
+            Command cmd;
+            if (ct == CommandType.CHANGE_USER) {
+                cmd = new ChangeUserCommand(in, out, this::switchUser);
+            } else {
+                cmd = ct.getCommand(tracker, in, out, dataFile());
+                if (cmd instanceof myfitnesspal.command.ExitCommand e) {
+                    e.setOnExit(this::stop);
+                }
+            }
+            commands.put(String.valueOf(ct.ordinal() + 1), cmd);
+        }
     }
 
-    private void stop() {
-        this.running = false;
+        private void switchUser() {
+            tracker.save(dataFile());
+            currentUser = null;
+            loginLoop();
+        }
+
+        public void run() {
+            while (running) {
+                try {
+                    printMenu();
+                    String choice = in.readLine();
+                    Command command = commands.get(choice);
+
+                    if (command != null) {
+                        command.execute();
+                    } else {
+                        out.write("Invalid input! Try again.");
+                    }
+                } catch (Exception exception) {
+                    out.write(exception.getMessage());
+                }
+            }
+            scanner.close();
+            out.write("Program stopped.");
+        }
+
+        private String dataFile() {
+            return USER_DIR + "/" + currentUser + "_data.txt";
+        }
+
+        private void printMenu() {
+            for (CommandType ct : CommandType.values()) {
+                out.writeln(">"
+                        + (ct.ordinal() + 1) + ". " + ct.getDescription());
+            }
+            out.write("-");
+        }
+
+        private void stop() {
+            running = false;
+        }
     }
-}

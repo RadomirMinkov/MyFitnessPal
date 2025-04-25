@@ -130,13 +130,25 @@ public enum CommandType {
                     inputProvider, outputWriter, fileName);
         }
     },
+    CHANGE_USER("Change user") {
+        @Override
+        public Command getCommand(
+                myfitnesspal.MyFitnessTracker t,
+                myfitnesspal.utility.InputProvider in,
+                myfitnesspal.utility.OutputWriter out,
+                String f) {
+            return new ChangeUserCommand(in, out, () -> {
+            });
+        }
+    },
     EXIT("Exit") {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
                                   OutputWriter outputWriter,
                                   String fileName) {
-            return new ExitCommand(() -> { }, tracker, outputWriter, fileName);
+            return new ExitCommand(() -> {
+            }, tracker, outputWriter, fileName);
         }
     };
 

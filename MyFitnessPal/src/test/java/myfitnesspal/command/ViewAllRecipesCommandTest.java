@@ -1,7 +1,7 @@
 package myfitnesspal.command;
 
 import myfitnesspal.MyFitnessTracker;
-import myfitnesspal.Recipe;
+import myfitnesspal.items.Recipe;
 import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -7,138 +7,102 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-class ApplicationTest {
+class ApplicationLoginWithUserDirTest {
 
     private final PrintStream originalOut = System.out;
-    private final java.io.InputStream originalIn = System.in;
+    private final InputStream originalIn  = System.in;
+
     private ByteArrayOutputStream testOut;
 
     @BeforeEach
-    void setup() {
+    void setUp() throws IOException {
         testOut = new ByteArrayOutputStream();
         System.setOut(new PrintStream(testOut));
+        deleteIfExists("users/users.dat");
+        deleteIfExists("users/ivan_data.txt");
+        deleteIfExists("users/maria_data.txt");
+        Files.createDirectories(Path.of("users"));
     }
 
     @AfterEach
-    void teardown() {
+    void tearDown() {
         System.setOut(originalOut);
         System.setIn(originalIn);
     }
 
-    @Test
-    void testRunExitImmediately() {
-        String userInput = "13\n";
-        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
-        Application app = new Application();
-        app.run();
-        String output = testOut.toString();
-        Assertions.assertTrue(output.contains("1. Drink water"));
-        Assertions.assertTrue(output.contains("2. Check water"));
-        Assertions.assertTrue(output.contains("3. Create Food"));
-        Assertions.assertTrue(output.contains("4. View All Foods"));
-        Assertions.assertTrue(output.contains("5. Log Food"));
-        Assertions.assertTrue(output.contains("6. View All Logged"));
-        Assertions.assertTrue(output.contains("7. Create Meal"));
-        Assertions.assertTrue(output.contains("8. View All Meals"));
-        Assertions.assertTrue(output.contains("9. Log Meal"));
-        Assertions.assertTrue(output.contains("10. Create Recipe"));
-        Assertions.assertTrue(output.contains("11. View All Recipes"));
-        Assertions.assertTrue(output.contains("12. Log Recipe"));
-        Assertions.assertTrue(output.contains("13. Exit"));
-        Assertions.assertTrue(output.contains("Program stopped."));
+    void deleteIfExists(String path) throws IOException {
+        Files.deleteIfExists(Path.of(path));
     }
 
     @Test
-    void testRunInvalidCommandAndThenExit() {
-        String userInput = "xyz\n13\n";
-        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
-        Application app = new Application();
-        app.run();
-        String output = testOut.toString();
-        Assertions.assertTrue(output
-                .contains("Invalid input! Try again."));
-        Assertions.assertTrue(output.contains("Program stopped."));
-    }
-
-    @Test
-    void testRunDrinkWaterThenExit() {
-        String userInput = String.join("\n",
-                "1",
-                "2025-03-19",
-                "500",
-                "13"
+    void registerLoginAndExit() {
+        String input = String.join("\n",
+                "2", "ivan", "123",
+                "1", "ivan", "123",
+                "14"
         ) + "\n";
-        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
-        Application app = new Application();
-        app.run();
-        String output = testOut.toString();
-        Assertions.assertTrue(output.contains(">How much?(ml)"));
-        Assertions.assertTrue(output
-                .contains("Water intake recorded successfully!"));
-        Assertions.assertTrue(output.contains("Program stopped."));
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        new Application().run();
+        String out = testOut.toString();
+        Assertions.assertTrue(out.contains("Registered"));
+        Assertions.assertTrue(out.contains("1. Drink water"));
+        Assertions.assertTrue(out.contains("14. Exit"));
+        Assertions.assertTrue(out.contains("Program stopped."));
     }
 
     @Test
-    void testRunCreateFoodThenExit() {
-        String userInput = String.join("\n",
-                "3",
-                "MyFood",
-                "Description",
-                "100",
-                "2",
-                "300",
-                "30",
-                "10",
-                "15",
-                "13"
+    void wrongCredentialsThenExit() {
+        String input = String.join("\n",
+                "1", "ghost", "wrong",
+                "3"
         ) + "\n";
-        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
-        Application app = new Application();
-        app.run();
-        String output = testOut.toString();
-        Assertions.assertTrue(output.contains(">Name:"));
-        Assertions.assertTrue(output.contains(">Description(optional):"));
-        Assertions.assertTrue(output
-                .contains(">Serving Size (g):"));
-        Assertions.assertTrue(output
-                .contains(">Food created successfully!"));
-        Assertions.assertTrue(output.contains("Program stopped."));
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        new Application().run();
+        String out = testOut.toString();
+        Assertions.assertTrue(out.contains("Wrong credentials"));
+        Assertions.assertTrue(out.contains(">1. Login"));
     }
 
     @Test
-    void testViewAllLoggedNoEntriesThenExit() {
-        String userInput = String.join("\n",
-                "6",
-                "2025-01-01",
-                "13"
+    void drinkWaterAfterLogin() {
+        String input = String.join("\n",
+                "2", "ivan", "pass",
+                "1", "ivan", "pass",
+                "1", "2025-04-01", "400",
+                "14"
         ) + "\n";
-        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
-        Application app = new Application();
-        app.run();
-        String output = testOut.toString();
-        Assertions.assertTrue(output
-                .contains("No foods logged for 2025-01-01")
-                || output.contains("No foods logged for 2025/01/01"));
-        Assertions.assertTrue(output.contains("No water logged"));
-        Assertions.assertTrue(output.contains("Program stopped."));
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        new Application().run();
+        String out = testOut.toString();
+        Assertions.assertTrue(out.contains(
+                "Water intake recorded successfully!"));
+        Assertions.assertTrue(out.contains("Program stopped."));
     }
 
     @Test
-    void testRunInvalidChoiceMultipleTimesThenExit() {
-        String userInput = String.join("\n",
-                "abc",
-                "999",
-                "13"
+    void changeUserKeepsDataSeparate() throws IOException {
+        String input = String.join("\n",
+                "2", "ivan", "1",
+                "1", "ivan", "1",
+                "1", "2025-01-01", "250",
+                "13",
+                "2", "maria", "2",
+                "1", "maria", "2",
+                "6", "2025-01-01",
+                "13",
+                "1", "ivan", "1",
+                "6", "2025-01-01",
+                "14"
         ) + "\n";
-        System.setIn(new ByteArrayInputStream(userInput.getBytes()));
-        Application app = new Application();
-        app.run();
-        String output = testOut.toString();
-        Assertions.assertTrue(output.contains("Invalid input! Try again."));
-        Assertions.assertTrue(output
-                .split("Invalid input! Try again.").length > 2);
-        Assertions.assertTrue(output.contains("Program stopped."));
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+        new Application().run();
+        String out = testOut.toString();
+        Assertions.assertTrue(out.contains("No water logged"));
     }
 }

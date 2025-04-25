@@ -1,4 +1,4 @@
-package myfitnesspal;
+package myfitnesspal.items;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,5 +39,13 @@ class FoodTest {
         Assertions.assertTrue(s.contains("Pizza"));
         Assertions.assertTrue(s.contains("100.0g"));
         Assertions.assertTrue(s.contains("300.0 kcal"));
+    }
+    @Test
+    void testGetTrackableType() {
+        Food food = new Food("Pizza", "Cheesy slice",
+                100, 2, 300, 30, 10, 15);
+        Trackable type = food.getTrackableType();
+        Assertions.assertTrue(type instanceof Food);
+        Assertions.assertEquals(food, type);
     }
 }
