@@ -1,5 +1,8 @@
 package myfitnesspal;
 
+import myfitnesspal.users.UserDatabase;
+import myfitnesspal.utility.ScannerInputProvider;
+import myfitnesspal.utility.ConsoleOutputWriter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +15,9 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Scanner;
 
-class ApplicationLoginWithUserDirTest {
+class ApplicationTest {
 
     private final PrintStream originalOut = System.out;
     private final InputStream originalIn  = System.in;
@@ -40,15 +44,25 @@ class ApplicationLoginWithUserDirTest {
         Files.deleteIfExists(Path.of(path));
     }
 
+    private void runAppWithInput(String input) {
+        System.setIn(new ByteArrayInputStream((input + "\n").getBytes()));
+        InputStream in = System.in;
+        Application app = new Application(
+                new ScannerInputProvider(new Scanner(in)),
+                new ConsoleOutputWriter(),
+                new UserDatabase()
+        );
+        app.run();
+    }
+
     @Test
     void registerLoginAndExit() {
         String input = String.join("\n",
                 "2", "ivan", "123",
                 "1", "ivan", "123",
                 "14"
-        ) + "\n";
-        System.setIn(new ByteArrayInputStream(input.getBytes()));
-        new Application().run();
+        );
+        runAppWithInput(input);
         String out = testOut.toString();
         Assertions.assertTrue(out.contains("Registered"));
         Assertions.assertTrue(out.contains("1. Drink water"));
@@ -61,9 +75,8 @@ class ApplicationLoginWithUserDirTest {
         String input = String.join("\n",
                 "1", "ghost", "wrong",
                 "3"
-        ) + "\n";
-        System.setIn(new ByteArrayInputStream(input.getBytes()));
-        new Application().run();
+        );
+        runAppWithInput(input);
         String out = testOut.toString();
         Assertions.assertTrue(out.contains("Wrong credentials"));
         Assertions.assertTrue(out.contains(">1. Login"));
@@ -76,9 +89,8 @@ class ApplicationLoginWithUserDirTest {
                 "1", "ivan", "pass",
                 "1", "2025-04-01", "400",
                 "14"
-        ) + "\n";
-        System.setIn(new ByteArrayInputStream(input.getBytes()));
-        new Application().run();
+        );
+        runAppWithInput(input);
         String out = testOut.toString();
         Assertions.assertTrue(out.contains(
                 "Water intake recorded successfully!"));
@@ -99,9 +111,8 @@ class ApplicationLoginWithUserDirTest {
                 "1", "ivan", "1",
                 "6", "2025-01-01",
                 "14"
-        ) + "\n";
-        System.setIn(new ByteArrayInputStream(input.getBytes()));
-        new Application().run();
+        );
+        runAppWithInput(input);
         String out = testOut.toString();
         Assertions.assertTrue(out.contains("No water logged"));
     }

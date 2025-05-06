@@ -24,8 +24,4 @@ public record Food(String name, String description,
                 + fat + "g, "
                 + protein + "g)";
     }
-    @Override
-    public Trackable getTrackableType() {
-        return this;
-    }
 }

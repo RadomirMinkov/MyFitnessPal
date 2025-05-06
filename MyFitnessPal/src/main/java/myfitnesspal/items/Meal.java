@@ -34,10 +34,6 @@ public record Meal(
         return sb.toString();
     }
 
-    @Override
-    public Trackable getTrackableType() {
-        return this;
-    }
 
     @Override
     public String toString() {

@@ -48,14 +48,4 @@ class FoodLogTest {
         Assertions.assertTrue(s.contains("Lunch"));
         Assertions.assertTrue(s.contains("2025-03-19"));
     }
-    @Test
-    void testGetTrackableType() {
-        FoodLog log = new FoodLog(
-                LocalDate.of(2025, 4, 20),
-                "Lunch", "Apple",
-                150, 80, 20, 1, 0);
-        Trackable type = log.getTrackableType();
-        Assertions.assertTrue(type instanceof FoodLog);
-        Assertions.assertEquals(log, type);
-    }
 }

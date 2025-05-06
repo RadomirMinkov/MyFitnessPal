@@ -28,12 +28,4 @@ class WaterIntakeTest {
         Assertions.assertTrue(s.contains("2025-03-19"));
         Assertions.assertTrue(s.contains("500 ml"));
     }
-    @Test
-    void testGetTrackableType() {
-        WaterIntake wi = new WaterIntake(
-                LocalDate.of(2025, 4, 20), 1000);
-        Trackable type = wi.getTrackableType();
-        Assertions.assertTrue(type instanceof WaterIntake);
-        Assertions.assertEquals(wi, type);
-    }
 }

@@ -9,7 +9,8 @@ public final class ChangeUserCommand implements Command {
     private final Runnable switchUser;
 
     public ChangeUserCommand(InputProvider in,
-                             OutputWriter out, Runnable switchUser) {
+                             OutputWriter out,
+                             Runnable switchUser) {
         this.in = in;
         this.out = out;
         this.switchUser = switchUser;

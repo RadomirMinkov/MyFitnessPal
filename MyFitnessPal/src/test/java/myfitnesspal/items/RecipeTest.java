@@ -77,12 +77,4 @@ class RecipeTest {
         Assertions.assertTrue(recipe.toFileString().contains(
                 ";0.0;0.0;0.0;0.0;0.0;0;"));
     }
-    @Test
-    void testGetTrackableType() {
-        Recipe recipe = new Recipe("Cake", "desc",
-                4, 800, 1600, 200, 100, 80, List.of());
-        Trackable type = recipe.getTrackableType();
-        Assertions.assertTrue(type instanceof Recipe);
-        Assertions.assertEquals(recipe, type);
-    }
 }

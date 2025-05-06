@@ -50,8 +50,4 @@ public record Recipe(
         );
     }
 
-    @Override
-    public Trackable getTrackableType() {
-        return this;
-    }
 }

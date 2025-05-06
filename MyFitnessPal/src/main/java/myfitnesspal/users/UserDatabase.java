@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class UserDatabase {
-    private static final String USER_DIR = "users";
-    private static final String FILE = USER_DIR + "/users.dat";
+    private static final String ALL_USERS_FILE = "users";
+    private static final String FILE = ALL_USERS_FILE + "/users.dat";
     private final Map<String, User> table = new HashMap<>();
 
     public UserDatabase() {
-        new File(USER_DIR).mkdirs();
+        new File(ALL_USERS_FILE).mkdirs();
         load();
     }
 
@@ -57,13 +57,17 @@ public final class UserDatabase {
                 }
             }
         } catch (IOException ignored) {
+            throw new IllegalArgumentException(
+                    "File couldn't be opened. Invalid user.",
+                    ignored.fillInStackTrace());
         }
     }
 
     private void save() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
+        try (PrintWriter printWriter = new PrintWriter(new FileWriter(FILE))) {
             table.values().forEach(u ->
-                    pw.println(u.name() + ";" + u.salt() + ";" + u.hash()));
+                    printWriter.println(u.name() + ";"
+                            + u.salt() + ";" + u.hash()));
         } catch (IOException ignored) {
         }
     }

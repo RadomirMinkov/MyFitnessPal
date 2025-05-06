@@ -14,9 +14,4 @@ public record WaterIntake(LocalDate date, int amount) implements Trackable {
     public String toString() {
         return "Water on " + date + ": " + amount + " ml";
     }
-
-    @Override
-    public Trackable getTrackableType() {
-        return this;
-    }
 }

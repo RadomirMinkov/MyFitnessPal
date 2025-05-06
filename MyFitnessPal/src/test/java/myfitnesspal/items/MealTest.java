@@ -76,12 +76,4 @@ class MealTest {
         Assertions.assertEquals(
                 "null (0g; 0 kcal; 0.00g, 0.00g, 0.00g)", meal.toString());
     }
-    @Test
-    void testGetTrackableType() {
-        Meal meal = new Meal("Breakfast", "desc",
-                300, 500, 40, 20, 30, List.of());
-        Trackable type = meal.getTrackableType();
-        Assertions.assertTrue(type instanceof Meal);
-        Assertions.assertEquals(meal, type);
-    }
 }

@@ -30,8 +30,4 @@ public record FoodLog(LocalDate date,
                 totalProtein, meal, date);
     }
 
-    @Override
-    public Trackable getTrackableType() {
-        return this;
-    }
 }
