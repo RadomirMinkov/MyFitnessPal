@@ -10,10 +10,9 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new DrinkWaterCommand(tracker,
-                    inputProvider, outputWriter, fileName);
+                    inputProvider, outputWriter);
         }
     },
 
@@ -21,8 +20,7 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new CheckWaterCommand(tracker, inputProvider, outputWriter);
         }
     },
@@ -31,10 +29,9 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new CreateFoodCommand(tracker,
-                    inputProvider, outputWriter, fileName);
+                    inputProvider, outputWriter);
         }
     },
 
@@ -42,8 +39,7 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new ViewAllFoodsCommand(tracker, outputWriter);
         }
     },
@@ -52,10 +48,9 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new LogFoodCommand(tracker,
-                    inputProvider, outputWriter, fileName);
+                    inputProvider, outputWriter);
         }
     },
 
@@ -63,8 +58,7 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new ViewAllLoggedCommand(tracker,
                     inputProvider, outputWriter);
         }
@@ -74,10 +68,9 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new CreateMealCommand(tracker,
-                    inputProvider, outputWriter, fileName);
+                    inputProvider, outputWriter);
         }
     },
 
@@ -85,8 +78,7 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new ViewAllMealsCommand(tracker, outputWriter);
         }
     },
@@ -95,28 +87,25 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new LogMealCommand(tracker, inputProvider,
-                    outputWriter, fileName);
+                    outputWriter);
         }
     },
     CREATE_RECIPE("Create Recipe") {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new CreateRecipeCommand(tracker,
-                    inputProvider, outputWriter, fileName);
+                    inputProvider, outputWriter);
         }
     },
     VIEW_ALL_RECIPES("View All Recipes") {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new ViewAllRecipesCommand(tracker, outputWriter);
         }
     },
@@ -124,10 +113,9 @@ public enum CommandType {
         @Override
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
-                                  OutputWriter outputWriter,
-                                  String fileName) {
+                                  OutputWriter outputWriter) {
             return new LogRecipeCommand(tracker,
-                    inputProvider, outputWriter, fileName);
+                    inputProvider, outputWriter);
         }
     };
 
@@ -143,6 +131,5 @@ public enum CommandType {
 
     public abstract Command getCommand(MyFitnessTracker tracker,
                                        InputProvider inputProvider,
-                                       OutputWriter outputWriter,
-                                       String fileName);
+                                       OutputWriter outputWriter);
 }

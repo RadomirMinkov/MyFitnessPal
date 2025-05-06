@@ -4,10 +4,11 @@ import myfitnesspal.items.Food;
 import myfitnesspal.items.FoodLog;
 import myfitnesspal.items.Meal;
 import myfitnesspal.items.MealItem;
-import myfitnesspal.items.WaterIntake;
+import myfitnesspal.items.MeasurementType;
 import myfitnesspal.items.Recipe;
 import myfitnesspal.items.RecipeItem;
 import myfitnesspal.items.Trackable;
+import myfitnesspal.items.WaterIntake;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,11 +35,11 @@ public final class Parser {
 
         return switch (prefix) {
             case "WATER" -> parseWater(data);
-            case "FOOD"  -> parseFood(data);
+            case "FOOD" -> parseFood(data);
             case "FOOD_LOG" -> parseFoodLog(data);
             case "MEAL" -> parseMeal(data);
             case "RECIPE" -> parseRecipe(data);
-            default      -> null;
+            default -> null;
         };
     }
     private static Recipe parseRecipe(String data) {
@@ -112,23 +113,38 @@ public final class Parser {
                 totalCalories, totalCarbs,
                 totalFat, totalProtein, mealItems);
     }
-    private static WaterIntake parseWater(String data) {
 
+    private static Food parseFood(String data) {
         String[] parts = data.split(";");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Wrong number of arguments");
+        if (parts.length != 9) {
+            throw new IllegalArgumentException("Invalid FOOD format");
+        }
+
+        String name = parts[0];
+        String description = parts[1];
+        MeasurementType measurementType = MeasurementType.valueOf(parts[2]);
+        double unitsPerServing = Double.parseDouble(parts[3]);
+        int servingsPerContainer = Integer.parseInt(parts[4]);
+        double calories = Double.parseDouble(parts[5]);
+        double carbs = Double.parseDouble(parts[6]);
+        double fat = Double.parseDouble(parts[7]);
+        double protein = Double.parseDouble(parts[8]);
+
+        return new Food(name, description, measurementType, unitsPerServing,
+                servingsPerContainer, calories, carbs, fat, protein);
+    }
+
+    private static WaterIntake parseWater(String data) {
+        String[] parts = data.split(";");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid WATER format");
         }
 
         LocalDate date = parseDate(parts[0]);
+        MeasurementType type = MeasurementType.valueOf(parts[1]);
+        double amount = Double.parseDouble(parts[2]);
 
-        int amount;
-        try {
-            amount = Integer.parseInt(parts[1]);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        return new WaterIntake(date, amount);
+        return new WaterIntake(date, type, amount);
     }
 
     public static LocalDate parseDate(String dateStr) {
@@ -144,42 +160,7 @@ public final class Parser {
             } catch (DateTimeParseException ignored) {
             }
         }
-
         throw new IllegalArgumentException("Invalid date: " + dateStr);
-    }
-
-    private static Food parseFood(String data) {
-
-        String[] parts = data.split(";");
-
-        if (parts.length != FOOD_PARAMETERS) {
-            throw new IllegalArgumentException("Too few arguments");
-        }
-
-        String name = parts[0];
-        String description = parts[1];
-        double servingSize;
-        int servingsPerContainer;
-        double calories;
-        double carbs;
-        double fat;
-        double protein;
-
-        try {
-            servingSize = Double.parseDouble(parts[2]);
-            servingsPerContainer = Integer.parseInt(parts[3]);
-            calories = Double.parseDouble(parts[4]);
-            carbs    = Double.parseDouble(parts[5]);
-            fat      = Double.parseDouble(parts[6]);
-            protein  = Double.parseDouble(parts[7]);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    "The given arguments aren't in the right format");
-        }
-
-        return new Food(name, description,
-                servingSize, servingsPerContainer,
-                calories, carbs, fat, protein);
     }
     private static FoodLog parseFoodLog(String data) {
         String[] parts = data.split(";");

@@ -2,6 +2,7 @@ package myfitnesspal;
 
 import myfitnesspal.items.Food;
 import myfitnesspal.items.FoodLog;
+import myfitnesspal.items.MeasurementType;
 import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.FileManager;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +25,8 @@ class MyFitnessTrackerTest {
 
     @Test
     void testAddItemAndGetWaterIntakes() {
-        WaterIntake wi = new WaterIntake(LocalDate.of(2025,
-                3, 19), 500);
+        WaterIntake wi = new WaterIntake(LocalDate.of(2025, 3, 19),
+                MeasurementType.MILLILITER, 500);
         tracker.addItem(wi);
         List<WaterIntake> waterIntakes = tracker.getWaterIntakes();
         Assertions.assertEquals(1, waterIntakes.size());
@@ -34,8 +35,9 @@ class MyFitnessTrackerTest {
 
     @Test
     void testAddItemAndGetFoods() {
-        Food f = new Food("Pizza", "Cheesy slice",
-                100, 2, 300, 30, 10, 15);
+        Food f = new Food("Pizza", "Cheesy slice", MeasurementType.GRAM,
+                100, 2, 300,
+                30, 10, 15);
         tracker.addItem(f);
         List<Food> foods = tracker.getFoods();
         Assertions.assertEquals(1, foods.size());
@@ -45,8 +47,8 @@ class MyFitnessTrackerTest {
     @Test
     void testAddItemAndGetFoodLogs() {
         FoodLog fl = new FoodLog(LocalDate.of(2025, 3, 19),
-                "Lunch", "Pizza", 200, 600, 40,
-                20, 30);
+                "Lunch", "Pizza", 200, 600,
+                40, 20, 30);
         tracker.addItem(fl);
         List<FoodLog> logs = tracker.getFoodLogs();
         Assertions.assertEquals(1, logs.size());
@@ -59,8 +61,8 @@ class MyFitnessTrackerTest {
         String fileName = tempFile.toString();
 
         List<String> linesToSave = List.of(
-                "WATER;2025-03-19;500",
-                "FOOD;Pizza;Cheesy slice;100;2;300;30;10;15",
+                "WATER;2025-03-19;MILLILITER;500",
+                "FOOD;Pizza;Cheesy slice;GRAM;100.0;2;300.0;30.0;10.0;15.0",
                 "FOOD_LOG;2025-03-19;Lunch;Pizza;200;600;40;20;30"
         );
         FileManager.saveRawLines(fileName, linesToSave);
@@ -71,8 +73,8 @@ class MyFitnessTrackerTest {
                         + tracker.getFoods().size()
                         + tracker.getFoodLogs().size());
 
-        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3,
-                20), 600));
+        tracker.addItem(new WaterIntake(LocalDate.of(2025, 3, 20),
+                MeasurementType.MILLILITER, 600));
         tracker.save(fileName);
 
         MyFitnessTracker anotherTracker = new MyFitnessTracker();
@@ -86,20 +88,21 @@ class MyFitnessTrackerTest {
 
     @Test
     void testGetFoodLogsForDate() {
-        FoodLog fl1 = new FoodLog(LocalDate.of(2025, 3, 19),
-                "Lunch", "Pizza",
-                200, 600,
-                40, 20, 30);
-        FoodLog fl2 = new FoodLog(LocalDate.of(2025, 3,
-                20),
+        FoodLog fl1 = new FoodLog(LocalDate.of(2025, 3,
+                19),
+                "Lunch", "Pizza", 200,
+                600, 40, 20,
+                30);
+        FoodLog fl2 = new FoodLog(LocalDate.of(2025,
+                3, 20),
                 "Dinner", "Pasta",
-                300, 500,
-                50, 10, 20);
+                300, 500, 50,
+                10, 20);
         tracker.addItem(fl1);
         tracker.addItem(fl2);
 
-        List<FoodLog> logsFor19 = tracker.getFoodLogsForDate(LocalDate.of(
-                2025, 3, 19));
+        List<FoodLog> logsFor19 = tracker.getFoodLogsForDate(
+                LocalDate.of(2025, 3, 19));
         Assertions.assertEquals(1, logsFor19.size());
         Assertions.assertEquals(fl1, logsFor19.get(0));
     }

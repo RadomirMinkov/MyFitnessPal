@@ -6,62 +6,45 @@ import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;
+import myfitnesspal.utility.PromptUtils;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public final class LogFoodCommand implements Command {
     private final MyFitnessTracker tracker;
-    private final InputProvider inputProvider;
-    private final OutputWriter outputWriter;
-    private final String fileName;
+    private final InputProvider input;
+    private final OutputWriter out;
 
     public LogFoodCommand(MyFitnessTracker tracker,
-                          InputProvider inputProvider,
-                          OutputWriter outputWriter,
-                          String fileName) {
+                          InputProvider input,
+                          OutputWriter out) {
         this.tracker = tracker;
-        this.inputProvider = inputProvider;
-        this.outputWriter = outputWriter;
-        this.fileName = fileName;
+        this.input = input;
+        this.out = out;
     }
 
     @Override
     public void execute() {
-        outputWriter.write(">5. Log Food\n");
+        out.write(">5. Log Food\n");
 
         Food chosenFood = chooseFood();
-        double[] totals = promptTotals(chosenFood);
+        LocalDate date = Parser.parseDate(PromptUtils.promptLine(
+                input, out, ">When (date):"));
+        String meal = PromptUtils.promptLine(input, out,
+                ">When (meal) [Breakfast/Lunch/Snacks/Dinner]:");
 
-        FoodLog foodLog = new FoodLog(
-                promptDate(),
-                promptMeal(),
-                chosenFood.name(),
-                totals[0],
-                totals[1],
-                totals[2],
-                totals[3],
-                totals[4]
-        );
+        double factor = promptAmount(chosenFood);
+        double grams = chosenFood.unitsPerServing() * factor;
+        double calories = chosenFood.calories() * factor;
+        double carbs = chosenFood.carbs() * factor;
+        double fat = chosenFood.fat() * factor;
+        double protein = chosenFood.protein() * factor;
 
-        tracker.addItem(foodLog);
-        outputWriter.write("Logged successfully:\n" + foodLog);
-    }
-
-    private LocalDate promptDate() {
-        outputWriter.write(">When (date):\n-");
-        String rawDate = inputProvider.readLine().trim();
-        return Parser.parseDate(rawDate);
-    }
-
-    private String promptMeal() {
-        outputWriter.write(">When (meal)"
-                + " [Breakfast/Lunch/Snacks/Dinner]:\n-");
-        String meal = inputProvider.readLine().trim();
-        if (meal.isEmpty()) {
-            throw new IllegalArgumentException("Invalid meal type!");
-        }
-        return meal;
+        FoodLog log = new FoodLog(date, meal, chosenFood.name(),
+                grams, calories, carbs, fat, protein);
+        tracker.addItem(log);
+        out.write("Logged successfully:\n" + log);
     }
 
     private Food chooseFood() {
@@ -70,77 +53,32 @@ public final class LogFoodCommand implements Command {
             throw new IllegalArgumentException(
                     "No foods in the system. Please create a food first.");
         }
+
         for (int i = 0; i < allFoods.size(); i++) {
-            outputWriter.write((i + 1) + ". " + allFoods.get(i));
+            out.write((i + 1) + ". " + allFoods.get(i));
         }
-        outputWriter.write(">Which food (food id):\n-");
-        String line = inputProvider.readLine().trim();
-        int chosenId;
-        try {
-            chosenId = Integer.parseInt(line);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    "Invalid food ID: " + line, e);
-        }
-        if (chosenId < 1 || chosenId > allFoods.size()) {
+
+        int id = PromptUtils.promptInt(input, out,
+                ">Which food (food id):");
+        if (id < 1 || id > allFoods.size()) {
             throw new IllegalArgumentException("Invalid food ID.");
         }
-        Food chosenFood = allFoods.get(chosenId - 1);
-        outputWriter.write(">" + chosenId + ". " + chosenFood);
-        return chosenFood;
+        return allFoods.get(id - 1);
     }
 
-    private double[] promptTotals(Food chosenFood) {
-        outputWriter.write("(Either)\n>Number of serving(s):\n-");
-        String line = inputProvider.readLine().trim();
+    private double promptAmount(Food food) {
+        int mode = PromptUtils.promptFoodLogMode(input, out,
+                food.measurementType(), food.unitsPerServing());
 
-        double totalGrams;
-        double totalCalories;
-        double totalCarbs;
-        double totalFat;
-        double totalProtein;
-
-        if (!line.isEmpty()) {
-            double numServings;
-            try {
-                numServings = Double.parseDouble(line);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(
-                        "Invalid number of servings: " + line, e);
-            }
-            totalGrams    = chosenFood.servingSize() * numServings;
-            totalCalories = chosenFood.calories()    * numServings;
-            totalCarbs    = chosenFood.carbs()       * numServings;
-            totalFat      = chosenFood.fat()         * numServings;
-            totalProtein  = chosenFood.protein()     * numServings;
+        if (mode == 1) {
+            double units = PromptUtils.promptDouble(input, out,
+                    ">How many " + food.measurementType().label() + "?");
+            return units / food.unitsPerServing();
+        } else if (mode == 2) {
+            return PromptUtils.promptDouble(input, out,
+                    ">How many servings?");
         } else {
-            outputWriter.write(">Serving size (g):\n-");
-            String gramsLine = inputProvider.readLine().trim();
-            double grams;
-            try {
-                grams = Double.parseDouble(gramsLine);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(
-                        "Invalid gram amount: " + gramsLine, e);
-            }
-            if (grams <= 0) {
-                throw new IllegalArgumentException("Invalid gram amount!");
-            }
-            double factor  = grams / chosenFood.servingSize();
-            totalGrams     = grams;
-            totalCalories  = chosenFood.calories() * factor;
-            totalCarbs     = chosenFood.carbs()    * factor;
-            totalFat       = chosenFood.fat()      * factor;
-            totalProtein   = chosenFood.protein()  * factor;
+            throw new IllegalArgumentException("Invalid choice.");
         }
-
-        return new double[] {
-                totalGrams,
-                totalCalories,
-                totalCarbs,
-                totalFat,
-                totalProtein
-        };
     }
-
 }

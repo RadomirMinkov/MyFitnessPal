@@ -1,58 +1,94 @@
 package myfitnesspal.command;
 
-import myfitnesspal.items.Food;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.Food;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CreateFoodCommandTest {
 
     @Test
-    void testExecuteValidInput() {
+    void testCreateFoodWithGramsPer100() {
         MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
 
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
+        when(input.readLine())
+                .thenReturn("Rice",
+                        "White grain", "1", "125",
+                        "1", "360", "80", "2", "6");
 
-        when(inputProvider.readLine())
-                .thenReturn("MyFood")
-                .thenReturn("This is good")
-                .thenReturn("100")
-                .thenReturn("2")
-                .thenReturn("300")
-                .thenReturn("30")
-                .thenReturn("10")
-                .thenReturn("15");
+        CreateFoodCommand cmd = new CreateFoodCommand(tracker, input, out);
+        cmd.execute();
 
-        CreateFoodCommand command = new CreateFoodCommand(
-                tracker, inputProvider, outputWriter, "testfile.txt"
-        );
+        Food food = tracker.getFoods().get(0);
+        assertEquals("Rice", food.name());
+        assertEquals(125.0, food.unitsPerServing(), 0.01);
+        assertEquals(3.6, food.calories(), 0.01);
+        assertEquals(0.8, food.carbs(), 0.01);
+        assertEquals(0.02, food.fat(), 0.01);
+        assertEquals(0.06, food.protein(), 0.01);
+    }
 
-        command.execute();
+    @Test
+    void testCreateFoodWithMlPerServing() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
 
-        List<Food> foods = tracker.getFoods();
-        Assertions.assertEquals(1, foods.size());
+        when(input.readLine())
+                .thenReturn("Milk", "Dairy", "2",
+                        "250", "2", "130", "10", "5", "7");
 
-        Food createdFood = foods.get(0);
-        Assertions.assertEquals("MyFood", createdFood.name());
-        Assertions.assertEquals("This is good",
-                createdFood.description());
-        Assertions.assertEquals(100, createdFood.servingSize());
-        Assertions.assertEquals(300, createdFood.calories());
-        Assertions.assertEquals(30, createdFood.carbs());
-        Assertions.assertEquals(10, createdFood.fat());
-        Assertions.assertEquals(15, createdFood.protein());
+        CreateFoodCommand cmd = new CreateFoodCommand(tracker, input, out);
+        cmd.execute();
 
-        verify(outputWriter).write(">3. Create Food");
-        verify(outputWriter).write(">Name:\n-");
-        verify(outputWriter).write(">Food created successfully!");
+        Food food = tracker.getFoods().get(0);
+        assertEquals("Milk", food.name());
+        assertEquals(250.0, food.unitsPerServing(), 0.01);
+        assertEquals(130.0, food.calories(), 0.01);
+    }
+
+    @Test
+    void testCreateFoodWithPiecesPerPiece() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
+
+        when(input.readLine())
+                .thenReturn("Cookie", "Chocolate chip",
+                        "3", "2", "1", "90", "15", "4", "1");
+
+        CreateFoodCommand cmd = new CreateFoodCommand(tracker, input, out);
+        cmd.execute();
+
+        Food food = tracker.getFoods().get(0);
+        assertEquals("Cookie", food.name());
+        assertEquals(2.0, food.unitsPerServing(), 0.01);
+        assertEquals(90.0, food.calories(), 0.01);
+    }
+
+    @Test
+    void testCreateFoodWithPiecesPerServing() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
+
+        when(input.readLine())
+                .thenReturn("Cookie", "Chocolate chip",
+                        "3", "2", "2", "180", "30", "8", "2");
+
+        CreateFoodCommand cmd = new CreateFoodCommand(tracker, input, out);
+        cmd.execute();
+
+        Food food = tracker.getFoods().get(0);
+        assertEquals("Cookie", food.name());
+        assertEquals(2.0, food.unitsPerServing(), 0.01);
+        assertEquals(90.0, food.calories(), 0.01);
     }
 }

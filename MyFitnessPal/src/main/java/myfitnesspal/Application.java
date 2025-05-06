@@ -90,7 +90,7 @@ public final class Application {
     private void initCommands() {
         commands = new HashMap<>();
         for (CommandType ct : CommandType.values()) {
-            Command cmd = ct.getCommand(tracker, in, out, dataFile());
+            Command cmd = ct.getCommand(tracker, in, out);
             commands.put(String.valueOf(ct.ordinal() + 1), cmd);
         }
 

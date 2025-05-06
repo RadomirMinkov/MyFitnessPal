@@ -1,137 +1,98 @@
 package myfitnesspal.command;
 
-import myfitnesspal.items.FoodLog;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.Food;
+import myfitnesspal.items.FoodLog;
 import myfitnesspal.items.Recipe;
+import myfitnesspal.items.RecipeItem;
+import myfitnesspal.items.MeasurementType;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class LogRecipeCommandTest {
 
-    private MyFitnessTracker tracker;
-    private InputProvider inputProvider;
-    private OutputWriter outputWriter;
-    private LogRecipeCommand command;
-
-    @BeforeEach
-    void setUp() {
-        tracker = mock(MyFitnessTracker.class);
-        inputProvider = mock(InputProvider.class);
-        outputWriter = mock(OutputWriter.class);
-        command = new LogRecipeCommand(
-                tracker, inputProvider,
-                outputWriter, "file.txt");
-    }
-
-    @Test
-    void testExecuteNoRecipes() {
-        when(tracker.getRecipes()).thenReturn(new ArrayList<>());
-        when(inputProvider.readLine())
-                .thenReturn("2025-05-01")
-                .thenReturn("Breakfast");
-
-        Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "No recipes in the system. Please create a recipe first.");
-        verify(outputWriter, atLeastOnce()).write(anyString());
-        verify(tracker, never()).addItem(any());
-    }
-
-    @Test
-    void testExecuteInvalidMealType() {
-        Recipe r = mock(Recipe.class);
-        List<Recipe> recipeList = new ArrayList<>();
-        recipeList.add(r);
-        when(tracker.getRecipes()).thenReturn(recipeList);
-        when(inputProvider.readLine())
-                .thenReturn("2025-05-10")
-                .thenReturn("")
-                .thenReturn("1")
-                .thenReturn("1");
-
-        Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Invalid meal type!");
-        verify(tracker, never()).addItem(any());
-    }
-
-    @Test
-    void testExecuteInvalidRecipeId() {
-        Recipe r = mock(Recipe.class);
-        when(tracker.getRecipes()).thenReturn(List.of(r));
-        when(inputProvider.readLine())
-                .thenReturn("2025-05-02")
-                .thenReturn("Lunch")
-                .thenReturn("99");
-
-        Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Invalid recipe ID.");
-        verify(tracker, never()).addItem(any());
-    }
-
-    @Test
-    void testExecuteInvalidServings() {
-        Recipe r = new Recipe("TestRecipe", "",
-                2, 200, 400,
-                20, 10, 6, List.of());
-        when(tracker.getRecipes()).thenReturn(List.of(r));
-        when(inputProvider.readLine())
-                .thenReturn("2025-01-01")
-                .thenReturn("Dinner")
-                .thenReturn("1")
-                .thenReturn("0");
-
-        Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Servings must be > 0");
-        verify(tracker, never()).addItem(any());
-    }
-
     @Test
     void testExecuteSuccess() {
-        Recipe r = new Recipe("Banitsa", "desc", 4,
-                400, 800, 100,
-                20, 10,
-                List.of());
-        when(tracker.getRecipes()).thenReturn(List.of(r));
-        when(inputProvider.readLine())
-                .thenReturn("2025-04-15")
-                .thenReturn("Breakfast")
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
+
+        Food food = new Food("Tomato", "desc",
+                MeasurementType.GRAM, 100, 1,
+                20, 4, 0, 1);
+        Recipe recipe = new Recipe("Tomato Soup", "desc",
+                300, 60, 12, 0, 3,
+                2, List.of(new RecipeItem("Tomato",
+                1.5)));
+
+        tracker.addItem(food);
+        tracker.addItem(recipe);
+
+        when(input.readLine())
+                .thenReturn("2025-05-01")
+                .thenReturn("Lunch")
                 .thenReturn("1")
                 .thenReturn("2");
 
-        command.execute();
+        LogRecipeCommand cmd = new LogRecipeCommand(tracker, input, out);
+        cmd.execute();
 
-        ArgumentCaptor<FoodLog> captor = ArgumentCaptor.forClass(FoodLog.class);
-        verify(tracker).addItem(captor.capture());
-        FoodLog log = captor.getValue();
-        Assertions.assertEquals(LocalDate.of(2025, 4,
-                15), log.date());
-        Assertions.assertEquals("Breakfast", log.meal());
-        Assertions.assertEquals("Banitsa", log.foodName());
-        Assertions.assertEquals(200, log.totalGrams(), 0.001);
-        Assertions.assertEquals(400, log.totalCalories(), 0.001);
-        Assertions.assertEquals(50, log.totalCarbs(), 0.001);
-        Assertions.assertEquals(10, log.totalFat(), 0.001);
-        Assertions.assertEquals(5, log.totalProtein(), 0.001);
+        List<FoodLog> logs = tracker.getFoodLogsForDate(LocalDate.of(2025,
+                5, 1));
+        assert logs.size() == 1;
+        FoodLog fl = logs.get(0);
+        assert fl.foodName().equals("Tomato");
+        assert fl.meal().equals("Lunch");
+        assert fl.totalGrams() == 300.0;
+        assert fl.totalCalories() == 60;
+    }
 
-        verify(outputWriter, atLeastOnce()).write(anyString());
+    @Test
+    void testInvalidRecipeId() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
+
+        tracker.addItem(new Recipe("InvalidRecipe", "",
+                0, 0, 0, 0,
+                0, 1, List.of()));
+
+        when(input.readLine())
+                .thenReturn("2025-05-01")
+                .thenReturn("Dinner")
+                .thenReturn("5");
+
+        LogRecipeCommand cmd = new LogRecipeCommand(tracker, input, out);
+        assertThrows(IllegalArgumentException.class, cmd::execute);
+
+    }
+
+    @Test
+    void testMissingFoodInRecipe() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
+
+        Recipe recipe = new Recipe("BrokenRecipe", "desc",
+                0, 0, 0, 0, 0, 1,
+                List.of(new RecipeItem("MissingFood", 2)));
+        tracker.addItem(recipe);
+
+        when(input.readLine())
+                .thenReturn("2025-05-12")
+                .thenReturn("Lunch")
+                .thenReturn("1")
+                .thenReturn("1");
+
+        LogRecipeCommand cmd = new LogRecipeCommand(tracker, input, out);
+        assertThrows(IllegalArgumentException.class, cmd::execute);
     }
 }

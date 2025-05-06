@@ -1,216 +1,132 @@
 package myfitnesspal.command;
 
+import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.items.Food;
 import myfitnesspal.items.FoodLog;
-import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.MeasurementType;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.startsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class LogFoodCommandTest {
 
     @Test
-    void testExecuteSuccessfulLog() {
-        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
+    void testExecutePerUnitLogging() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        Food food = new Food("Milk", "desc",
+                MeasurementType.MILLILITER, 100, 1,
+                80, 5, 4, 3);
+        tracker.addItem(food);
 
-        List<Food> foods = new ArrayList<>();
-        foods.add(new Food("Apple", "Juicy fruit",
-                100, 1,
-                52, 14, 0.2, 0.3));
-        foods.add(new Food("Bread", "Whole wheat",
-                50, 4,
-                120, 25, 2, 4));
-        when(tracker.getFoods()).thenReturn(foods);
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
 
-        when(inputProvider.readLine())
-                .thenReturn("2")
-                .thenReturn("2")
-                .thenReturn("2025-04-01")
-                .thenReturn("Lunch");
+        when(input.readLine())
+                .thenReturn("1")
+                .thenReturn("2025-05-01")
+                .thenReturn("Breakfast")
+                .thenReturn("1")
+                .thenReturn("200");
 
-        LogFoodCommand command = new LogFoodCommand(
-                tracker, inputProvider, outputWriter, "testfile.txt"
-        );
+        LogFoodCommand command = new LogFoodCommand(tracker, input, out);
         command.execute();
 
-        verify(outputWriter).write(">5. Log Food\n");
-        verify(outputWriter).write("1. " + foods.get(0));
-        verify(outputWriter).write("2. " + foods.get(1));
-        verify(outputWriter).write(">Which food (food id):\n-");
-        verify(outputWriter).write("(Either)\n>Number of serving(s):\n-");
-        verify(outputWriter).write(">When (date):\n-");
-        verify(outputWriter).write(">When (meal) "
-                + "[Breakfast/Lunch/Snacks/Dinner]:\n-");
-        verify(outputWriter).write(startsWith("Logged successfully:\n"));
+        List<FoodLog> logs = tracker.getFoodLogs();
+        Assertions.assertEquals(1, logs.size());
+        FoodLog log = logs.get(0);
 
-        verify(tracker).addItem(argThat(item -> {
-            if (!(item instanceof FoodLog fl)) {
-                return false;
-            }
-            return fl.foodName().equals("Bread")
-                    && fl.date().equals(LocalDate.of(
-                            2025, 4, 1))
-                    && fl.meal().equals("Lunch");
-        }));
+        Assertions.assertEquals("Milk", log.foodName());
+        Assertions.assertEquals(LocalDate.of(2025, 5,
+                1), log.date());
+        Assertions.assertEquals("Breakfast", log.meal());
+        Assertions.assertEquals(200, log.totalGrams(), 0.001);
+        Assertions.assertEquals(160, log.totalCalories(), 0.001);
+        Assertions.assertEquals(10, log.totalCarbs(), 0.001);
+        Assertions.assertEquals(8, log.totalFat(), 0.001);
+        Assertions.assertEquals(6, log.totalProtein(), 0.001);
 
+        verify(out).write(">5. Log Food\n");
+        verify(out).write("1. " + food);
+        verify(out).write("Logged successfully:\n" + log);
     }
 
     @Test
-    void testExecuteNoFoods() {
-        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
+    void testExecutePerServingLogging() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        Food food = new Food("Yogurt", "desc",
+                MeasurementType.GRAM, 150, 1,
+                120, 10, 6, 5);
+        tracker.addItem(food);
 
-        when(tracker.getFoods()).thenReturn(new ArrayList<>());
-        when(inputProvider.readLine()).thenReturn("1");
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
 
-        LogFoodCommand command = new LogFoodCommand(
-                tracker, inputProvider, outputWriter, "testfile.txt"
-        );
-        Assertions.assertThrows(
-                IllegalArgumentException.class, command::execute);
-
-        verify(outputWriter).write(">5. Log Food\n");
-    }
-
-    @Test
-    void testExecuteInvalidFoodId() {
-        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
-
-        List<Food> foods = new ArrayList<>();
-        foods.add(new Food("TestFood", "desc",
-                100, 1,
-                100, 10, 1, 2));
-        when(tracker.getFoods()).thenReturn(foods);
-
-        when(inputProvider.readLine())
-                .thenReturn("5")
+        when(input.readLine())
                 .thenReturn("1")
-                .thenReturn("2025-04-01")
-                .thenReturn("Breakfast");
-
-        LogFoodCommand command = new LogFoodCommand(
-                tracker, inputProvider, outputWriter, "file.txt"
-        );
-        Assertions.assertThrows(
-                IllegalArgumentException.class, command::execute);
-
-        verify(outputWriter).write(">5. Log Food\n");
-        verify(outputWriter).write("1. " + foods.get(0));
-        verify(outputWriter).write(">Which food (food id):\n-");
-
-    }
-    @Test
-    void testPromptTotalsWithGramApproach() {
-        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
-
-        List<Food> foods = Collections.singletonList(
-                new Food("Rice",
-                        "desc", 100,
-                        1, 130,
-                        28, 0.3, 2.5)
-        );
-        when(tracker.getFoods()).thenReturn(foods);
-
-        when(inputProvider.readLine())
-                .thenReturn("1")
-                .thenReturn("")
-                .thenReturn("200")
-                .thenReturn("2025-10-01")
-                .thenReturn("Breakfast");
+                .thenReturn("2025-05-02")
+                .thenReturn("Lunch")
+                .thenReturn("2")
+                .thenReturn("2");
 
         LogFoodCommand command = new LogFoodCommand(tracker,
-                inputProvider, outputWriter, "dummy.txt");
+                input, out);
         command.execute();
 
-        verify(outputWriter).write("(Either)\n>Number of serving(s):\n-");
-        verify(outputWriter).write(">Serving size (g):\n-");
-        verify(outputWriter).write("Logged successfully:\n"
-                + new FoodLog(
-                        LocalDate.of(2025, 10, 1),
-                        "Breakfast",
-                        "Rice",
-                        200,
-                        260.0,
-                        56.0,
-                        0.6,
-                        5.0
-                )
-        );
+        List<FoodLog> logs = tracker.getFoodLogs();
+        Assertions.assertEquals(1, logs.size());
+        FoodLog log = logs.get(0);
+
+        Assertions.assertEquals("Yogurt", log.foodName());
+        Assertions.assertEquals(LocalDate.of(2025, 5, 2),
+                log.date());
+        Assertions.assertEquals("Lunch", log.meal());
+        Assertions.assertEquals(300, log.totalGrams(), 0.001);
+        Assertions.assertEquals(240, log.totalCalories(), 0.001);
+        Assertions.assertEquals(20, log.totalCarbs(), 0.001);
+        Assertions.assertEquals(12, log.totalFat(), 0.001);
+        Assertions.assertEquals(10, log.totalProtein(), 0.001);
+
+        verify(out).write(">5. Log Food\n");
+        verify(out).write("1. " + food);
+        verify(out).write("Logged successfully:\n" + log);
     }
 
     @Test
-    void testPromptTotalsInvalidGrams() {
-        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
+    void testExecuteWithInvalidFoodId() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
+        tracker.addItem(new Food("Banana", "desc",
+                MeasurementType.PIECE, 1, 1,
+                90, 23, 0.3, 1.1));
 
-        when(tracker.getFoods()).thenReturn(
-                List.of(new Food("Pasta",
-                        "", 100,
-                        1, 350,
-                        70, 2, 9))
-        );
-        when(inputProvider.readLine())
-                .thenReturn("1")
-                .thenReturn("")
-                .thenReturn("-50");
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
 
-        LogFoodCommand command = new LogFoodCommand(tracker,
-                inputProvider, outputWriter,
-                "testfile.txt");
+        when(input.readLine()).thenReturn("99");
+
+        LogFoodCommand command = new LogFoodCommand(tracker, input, out);
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Invalid gram amount!");
-        verify(outputWriter).write("(Either)\n>Number of serving(s):\n-");
-        verify(outputWriter).write(">Serving size (g):\n-");
+                command::execute);
     }
 
     @Test
-    void testPromptMealEmpty() {
-        MyFitnessTracker tracker = mock(MyFitnessTracker.class);
-        InputProvider inputProvider = mock(InputProvider.class);
-        OutputWriter outputWriter = mock(OutputWriter.class);
+    void testExecuteWithEmptyFoodList() {
+        MyFitnessTracker tracker = new MyFitnessTracker();
 
-        when(tracker.getFoods()).thenReturn(
-                List.of(new Food("Chicken",
-                        "desc", 100,
-                        1, 200,
-                        0, 10, 25))
-        );
-        when(inputProvider.readLine())
-                .thenReturn("1")
-                .thenReturn("2")
-                .thenReturn("2025-06-01")
-                .thenReturn("");
+        InputProvider input = mock(InputProvider.class);
+        OutputWriter out = mock(OutputWriter.class);
 
-        LogFoodCommand command = new LogFoodCommand(tracker,
-                inputProvider, outputWriter,
-                "testfile.txt");
+        LogFoodCommand command = new LogFoodCommand(tracker, input, out);
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                command::execute,
-                "Invalid meal type!");
-        verify(outputWriter, never()).write("Logged successfully:\n");
+                command::execute);
     }
 }

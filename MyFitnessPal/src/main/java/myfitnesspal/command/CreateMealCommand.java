@@ -1,50 +1,35 @@
 package myfitnesspal.command;
 
+import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.items.Food;
 import myfitnesspal.items.Meal;
 import myfitnesspal.items.MealItem;
-import myfitnesspal.MyFitnessTracker;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
+import myfitnesspal.utility.PromptUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class CreateMealCommand extends BaseMultiItemCommand {
+
     public CreateMealCommand(MyFitnessTracker tracker,
                              InputProvider inputProvider,
-                             OutputWriter outputWriter,
-                             String fileName) {
-        super(tracker, inputProvider, outputWriter, fileName);
+                             OutputWriter outputWriter) {
+        super(tracker, inputProvider, outputWriter);
     }
 
     @Override
     public void execute() {
         outputWriter.write(">7. Create Meal\n");
-        String name = promptMealName();
-        String description = promptMealDescription();
+        String name = PromptUtils.promptLine(inputProvider, outputWriter,
+                ">Name:");
+        String description = PromptUtils.promptLine(inputProvider, outputWriter,
+                ">Description (optional):");
 
         double[] totals = new double[]{0, 0, 0, 0, 0};
-        List<MealItem> mealItems = gatherMealItems(totals);
-
-        Meal meal = buildMeal(name, description, totals, mealItems);
-        tracker.addItem(meal);
-
-        showMealCreationResult(meal);
-    }
-
-    private String promptMealName() {
-        outputWriter.write(">Name:\n-");
-        return inputProvider.readLine().trim();
-    }
-
-    private String promptMealDescription() {
-        outputWriter.write(">Description(optional):\n-");
-        return inputProvider.readLine().trim();
-    }
-
-    private List<MealItem> gatherMealItems(double[] totals) {
         List<MealItem> mealItems = new ArrayList<>();
+
         while (true) {
             Food chosen = selectFood();
             double servings = promptSubServings();
@@ -52,30 +37,18 @@ public final class CreateMealCommand extends BaseMultiItemCommand {
             mealItems.add(new MealItem(chosen.name(), servings));
             accumulateTotals(chosen, servings, totals);
 
-            outputWriter.write(">More? (yes/no)\n-");
-            String more = inputProvider.readLine().trim().toLowerCase();
+            String more = PromptUtils.promptLine(inputProvider, outputWriter,
+                    ">More? (yes/no)").toLowerCase();
             if (!more.equals("yes")) {
                 break;
             }
         }
-        return mealItems;
-    }
 
-    private Meal buildMeal(String name, String description,
-                           double[] totals, List<MealItem> mealItems) {
-        return new Meal(
-                name,
-                description,
-                totals[0],
-                totals[1],
-                totals[2],
-                totals[3],
-                totals[4],
-                mealItems
-        );
-    }
+        Meal meal = new Meal(name, description,
+                totals[0], totals[1], totals[2], totals[3],
+                totals[4], mealItems);
+        tracker.addItem(meal);
 
-    private void showMealCreationResult(Meal meal) {
         outputWriter.write("\n>Created Meal: " + meal.name());
         outputWriter.write("From:");
         for (MealItem mi : meal.items()) {
@@ -84,14 +57,25 @@ public final class CreateMealCommand extends BaseMultiItemCommand {
                     .findFirst()
                     .orElse(null);
             if (f != null) {
-                double grams = f.servingSize() * mi.servings();
-                outputWriter.write((int) mi.servings() + " x " + f);
+                double quantity = f.unitsPerServing() * mi.servings();
+                outputWriter.write((int) mi.servings() + " x "
+                        + f.name()
+                        + " (" + quantity + " "
+                        + f.measurementType().label() + ")");
             }
         }
         outputWriter.write("----------------------------------");
         outputWriter.write("Serving "
-                + String.format("(%.0fg; %.0f kcal; %.2fg, %.2fg, %.2fg)",
+                + String.format("(%.0f %s; %.0f kcal; %.2fg, %.2fg, %.2fg)",
                 meal.totalGrams(),
+                meal.items().isEmpty() ? ""
+                        : tracker.getFoods().stream()
+                                .filter(f -> f.name()
+                                        .equals(meal.items()
+                                                .get(0).foodName()))
+                                .map(f -> f.measurementType().label())
+                                .findFirst()
+                                .orElse("units"),
                 meal.totalCalories(),
                 meal.totalCarbs(),
                 meal.totalFat(),

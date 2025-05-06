@@ -58,7 +58,6 @@ class MealTest {
                 12, 8,
                 List.of(new MealItem("Food", 1.0)));
         String str = meal.toString();
-        // Format: "Breakfast (200g; 400 kcal; 40.00g, 12.00g, 8.00g)"
         Assertions.assertTrue(str.contains("Breakfast"));
         Assertions.assertTrue(str.contains("200g"));
         Assertions.assertTrue(str.contains("400 kcal"));

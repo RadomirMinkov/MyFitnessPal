@@ -5,6 +5,7 @@ import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;
+import myfitnesspal.utility.PromptUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,21 +25,20 @@ public final class CheckWaterCommand implements Command {
 
     @Override
     public void execute() {
-        output.write(">When? -");
-        String rawDate = input.readLine();
+        LocalDate date = Parser.parseDate(
+                PromptUtils.promptLine(input, output, ">When?"));
 
-        LocalDate date = Parser.parseDate(rawDate);
-        List<WaterIntake> allWater = tracker.getWaterIntakes();
-        List<WaterIntake> sameDate = allWater.stream()
+        List<WaterIntake> sameDate = tracker.getWaterIntakes().stream()
                 .filter(w -> w.date().equals(date))
                 .toList();
 
         if (sameDate.isEmpty()) {
-            output.write(rawDate + ": No water intake recorded.");
+            output.write(date + ": No water intake recorded.");
         } else {
-            output.write(rawDate + ":");
+            output.write(date + ":");
             for (WaterIntake wi : sameDate) {
-                output.write("-> " + wi.amount() + " ml");
+                output.write("-> " + wi.amount() + " "
+                        + wi.measurementType().label());
             }
         }
     }

@@ -86,8 +86,7 @@ class ApplicationTest {
     void drinkWaterAfterLogin() {
         String input = String.join("\n",
                 "2", "ivan", "pass",
-                "1", "ivan", "pass",
-                "1", "2025-04-01", "400",
+                "1", "2025-04-01", "2", "400",
                 "14"
         );
         runAppWithInput(input);

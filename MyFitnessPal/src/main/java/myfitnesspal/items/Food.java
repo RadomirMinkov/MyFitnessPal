@@ -1,27 +1,34 @@
 package myfitnesspal.items;
 
-
-public record Food(String name, String description,
-                   double servingSize, int servingsPerContainer,
-                   double calories, double carbs,
-                   double fat, double protein) implements Trackable {
+public record Food(
+        String name,
+        String description,
+        MeasurementType measurementType,
+        double unitsPerServing,
+        int servingsPerContainer,
+        double calories,
+        double carbs,
+        double fat,
+        double protein
+) implements Trackable {
 
     @Override
     public String toFileString() {
-        return "FOOD;" + (name == null ? "" : name) + ";"
-                + (description == null ? "" : description) + ";"
-                + servingSize + ";" + servingsPerContainer + ";"
-                + calories + ";"  + carbs + ";"
-                + fat + ";"  + protein;
+        return "FOOD;" + name + ";" + description + ";"
+                + measurementType.name() + ";"
+                + unitsPerServing + ";"
+                + servingsPerContainer + ";"
+                + calories + ";" + carbs
+                + ";" + fat + ";" + protein;
     }
 
     @Override
     public String toString() {
-        return name
-                + " (" + servingSize + "g; "
+        return name + " (1 serving = " + unitsPerServing + " "
+                + measurementType.label() + "; "
                 + calories + " kcal; "
                 + carbs + "g, "
-                + fat + "g, "
-                + protein + "g)";
+                + fat + "g, " + protein + "g)";
     }
+
 }

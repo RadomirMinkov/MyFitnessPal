@@ -1,67 +1,86 @@
 package myfitnesspal.command;
 
-import myfitnesspal.items.Food;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.Food;
+import myfitnesspal.items.MeasurementType;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
+import myfitnesspal.utility.PromptUtils;
 
 public final class CreateFoodCommand implements Command {
     private final MyFitnessTracker tracker;
-    private final InputProvider inputProvider;
-    private final OutputWriter outputWriter;
-    private final String fileName;
+    private final InputProvider input;
+    private final OutputWriter out;
 
     public CreateFoodCommand(MyFitnessTracker tracker,
-                             InputProvider inputProvider,
-                             OutputWriter outputWriter,
-                             String fileName) {
+                             InputProvider input,
+                             OutputWriter out) {
         this.tracker = tracker;
-        this.inputProvider = inputProvider;
-        this.outputWriter = outputWriter;
-        this.fileName = fileName;
+        this.input = input;
+        this.out = out;
     }
 
     @Override
     public void execute() {
-        outputWriter.write(">3. Create Food");
+        out.write(">1. Create food");
 
-        outputWriter.write(">Name:\n-");
-        String name = inputProvider.readLine();
+        String name = PromptUtils.promptLine(input, out, ">name?");
+        String description = PromptUtils.promptLine(input, out,
+                ">description?");
 
-        outputWriter.write(">Description(optional):\n-");
-        String description = inputProvider.readLine();
+        MeasurementType type = PromptUtils.promptMeasurementType(input, out);
+        double unitsPerServing;
 
-        outputWriter.write(">Serving Size (g):\n-");
-        double servingSize = Double.parseDouble(inputProvider.readLine());
+        unitsPerServing = switch (type) {
+            case GRAM -> PromptUtils.promptDouble(input, out,
+                    ">Enter grams per serving:");
+            case MILLILITER -> PromptUtils.promptDouble(input, out,
+                    ">Enter milliliters per serving:");
+            case PIECE -> PromptUtils.promptDouble(input, out,
+                    ">Enter pieces per serving:");
+            default -> throw new
+                    IllegalArgumentException("Unknown measurement type");
+        };
 
-        outputWriter.write(">Servings per container:\n-");
-        int servings = Integer.parseInt(inputProvider.readLine());
+        int nutrientMode;
+        if (type == MeasurementType.GRAM
+                || type == MeasurementType.MILLILITER) {
+            out.write(">Choose nutrient info:\n>1. Per 100 " + type.label()
+                    + "\n>2. Per serving (" + unitsPerServing + " "
+                    + type.label() + ")");
+        } else {
+            out.write(">Choose nutrient info:\n>1. Per piece\n>2. Per serving ("
+                    + unitsPerServing + " pcs)");
+        }
 
-        outputWriter.write(">Amount per serving:");
-        outputWriter.write("\n>Calories (kcal):\n-");
-        double calories = Double.parseDouble(inputProvider.readLine());
+        nutrientMode = PromptUtils.promptInt(input, out, "-");
 
-        outputWriter.write(">Carbs (g):\n-");
-        double carbs = Double.parseDouble(inputProvider.readLine());
+        double calories = PromptUtils.promptDouble(
+                input, out, ">Enter calories:");
+        double carbs = PromptUtils.promptDouble(
+                input, out, ">Enter carbs:");
+        double fat = PromptUtils.promptDouble(
+                input, out, ">Enter fats:");
+        double protein = PromptUtils.promptDouble(
+                input, out, ">Enter protein:");
 
-        outputWriter.write(">Fat (g):\n-");
-        double fat = Double.parseDouble(inputProvider.readLine());
+        if ((type == MeasurementType.GRAM || type == MeasurementType.MILLILITER)
+                && nutrientMode == 1) {
+            calories /= 100.0;
+            carbs /= 100.0;
+            fat /= 100.0;
+            protein /= 100.0;
+        } else if (type == MeasurementType.PIECE && nutrientMode == 2) {
+            calories /= unitsPerServing;
+            carbs /= unitsPerServing;
+            fat /= unitsPerServing;
+            protein /= unitsPerServing;
+        }
 
-        outputWriter.write(">Protein (g):\n-");
-        double protein = Double.parseDouble(inputProvider.readLine());
+        Food food = new Food(name, description, type, unitsPerServing, 1,
+                calories, carbs, fat, protein);
 
-        Food newFood = new Food(
-                name,
-                description,
-                servingSize,
-                servings,
-                calories,
-                carbs,
-                fat,
-                protein
-        );
-        tracker.addItem(newFood);
-
-        outputWriter.write(">Food created successfully!");
+        tracker.addItem(food);
+        out.write("Food created successfully!");
     }
 }

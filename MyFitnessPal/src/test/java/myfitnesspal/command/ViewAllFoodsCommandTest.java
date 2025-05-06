@@ -1,11 +1,11 @@
 package myfitnesspal.command;
 
-import myfitnesspal.items.Food;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.Food;
+import myfitnesspal.items.MeasurementType;
 import myfitnesspal.utility.OutputWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ class ViewAllFoodsCommandTest {
 
     @BeforeEach
     void setUp() {
-        tracker = Mockito.mock(MyFitnessTracker.class);
+        tracker = mock(MyFitnessTracker.class);
         outputWriter = mock(OutputWriter.class);
     }
 
@@ -30,8 +30,8 @@ class ViewAllFoodsCommandTest {
     void testExecuteNoFoods() {
         when(tracker.getFoods()).thenReturn(new ArrayList<>());
 
-        ViewAllFoodsCommand command = new
-                ViewAllFoodsCommand(tracker, outputWriter);
+        ViewAllFoodsCommand command =
+                new ViewAllFoodsCommand(tracker, outputWriter);
         command.execute();
 
         verify(outputWriter).write(">4. View All Foods");
@@ -43,12 +43,11 @@ class ViewAllFoodsCommandTest {
     void testExecuteWithFoods() {
         List<Food> foods = new ArrayList<>();
         foods.add(new Food("Apple", "desc",
-                100, 1, 52,
-                14, 0.2, 0.3));
+                MeasurementType.GRAM, 100,
+                1, 52, 14, 0.2, 0.3));
         foods.add(new Food("Bread", "desc",
-                50,
-                4, 120, 25,
-                2, 4));
+                MeasurementType.PIECE, 50,
+                4, 120, 25, 2, 4));
 
         when(tracker.getFoods()).thenReturn(foods);
 
@@ -57,8 +56,12 @@ class ViewAllFoodsCommandTest {
         command.execute();
 
         verify(outputWriter).write(">4. View All Foods");
-        verify(outputWriter).write("1. " + foods.get(0));
-        verify(outputWriter).write("2. " + foods.get(1));
+        verify(outputWriter)
+                .write("1. Apple (1 serving = "
+                        + "100.00 g, 52 kcal, 14.00g, 0.20g, 0.30g)");
+        verify(outputWriter)
+                .write("2. Bread (1 serving = "
+                        + "50.00 pcs, 120 kcal, 25.00g, 2.00g, 4.00g)");
         verifyNoMoreInteractions(outputWriter);
     }
 }

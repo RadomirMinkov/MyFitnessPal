@@ -1,11 +1,12 @@
 package myfitnesspal.command;
 
-import myfitnesspal.items.FoodLog;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.FoodLog;
 import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.InputProvider;
 import myfitnesspal.utility.OutputWriter;
 import myfitnesspal.utility.Parser;
+import myfitnesspal.utility.PromptUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,21 +29,19 @@ public final class ViewAllLoggedCommand implements Command {
     @Override
     public void execute() {
         outputWriter.write(">6. View All Logged\n");
-        outputWriter.write(">When (date):\n-");
-        String rawDate = inputProvider.readLine().trim();
-        LocalDate date = Parser.parseDate(rawDate);
+        LocalDate date = Parser.parseDate(
+                PromptUtils.promptLine(inputProvider, outputWriter,
+                        ">When (date):"));
 
         List<FoodLog> logs = tracker.getFoodLogsForDate(date);
 
-        Map<String, List<FoodLog>> groupedByMeal =
-                logs.stream().collect(Collectors.
-                        groupingBy(FoodLog::meal));
+        Map<String, List<FoodLog>> groupedByMeal = logs.stream()
+                .collect(Collectors.groupingBy(FoodLog::meal));
 
         if (logs.isEmpty()) {
-            outputWriter.write("No foods logged for " + rawDate);
+            outputWriter.write("No foods logged for " + date);
         } else {
-            String[] mealOrder = {"Breakfast",
-                    "Lunch", "Snacks", "Dinner"};
+            String[] mealOrder = {"Breakfast", "Lunch", "Snacks", "Dinner"};
 
             for (String meal : mealOrder) {
                 List<FoodLog> mealLogs = groupedByMeal.get(meal);
@@ -51,11 +50,15 @@ public final class ViewAllLoggedCommand implements Command {
                     for (FoodLog fl : mealLogs) {
                         outputWriter.write(">"
                                 + String.format(
-                                        "%.0fg x %s (Total: %.0fg; %.0f"
-                                                + " kcal; %.2fg, %.2fg, %.2fg)",
-                                fl.totalGrams(), fl.foodName(),
-                                fl.totalGrams(), fl.totalCalories(),
-                                fl.totalCarbs(), fl.totalFat(),
+                                        "%.0f units x %s (Total:"
+                                                + " %.0f units; %.0f kcal; "
+                                                + "%.2fg, %.2fg, %.2fg)",
+                                fl.totalGrams(),
+                                fl.foodName(),
+                                fl.totalGrams(),
+                                fl.totalCalories(),
+                                fl.totalCarbs(),
+                                fl.totalFat(),
                                 fl.totalProtein()));
                     }
                 } else {
@@ -64,17 +67,19 @@ public final class ViewAllLoggedCommand implements Command {
             }
         }
 
-        List<WaterIntake> waterIntakes = tracker.
-                getWaterIntakes().stream()
+        List<WaterIntake> waterIntakes = tracker
+                .getWaterIntakes().stream()
                 .filter(w -> w.date().equals(date))
                 .toList();
 
-        int totalMl = waterIntakes.stream().
-                mapToInt(WaterIntake::amount).sum();
-        double totalLiters = totalMl / 1000.0;
-
-        outputWriter.write("\nWater: "
-                + (totalLiters > 0 ? totalLiters
-                + "L" : "No water logged"));
+        if (waterIntakes.isEmpty()) {
+            outputWriter.write("\nWater: No water logged");
+        } else {
+            outputWriter.write("\nWater:");
+            for (WaterIntake wi : waterIntakes) {
+                outputWriter.write("-> " + wi.amount()
+                        + " " + wi.measurementType().label());
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package myfitnesspal.command;
 
-import myfitnesspal.items.Food;
 import myfitnesspal.MyFitnessTracker;
+import myfitnesspal.items.Food;
 import myfitnesspal.utility.OutputWriter;
 
 import java.util.List;
@@ -28,8 +28,18 @@ public final class ViewAllFoodsCommand implements Command {
 
         int index = 1;
         for (Food food : allFoods) {
-            outputWriter.write(index + ". " + food);
-            index++;
+            String line = String.format(
+                    "%d. %s (1 serving = "
+                            + "%.2f %s, %.0f kcal, %.2fg, %.2fg, %.2fg)",
+                    index++,
+                    food.name(),
+                    food.unitsPerServing(),
+                    food.measurementType().label(),
+                    food.calories(),
+                    food.carbs(),
+                    food.fat(),
+                    food.protein());
+            outputWriter.write(line);
         }
     }
 }
