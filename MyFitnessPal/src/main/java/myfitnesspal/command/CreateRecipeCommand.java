@@ -23,22 +23,43 @@ public final class CreateRecipeCommand extends BaseMultiItemCommand {
     public void execute() {
         outputWriter.write(">10. Create Recipe\n");
 
-        String name = PromptUtils.promptLine(inputProvider, outputWriter,
-                ">Name:");
-        String description = PromptUtils.promptLine(inputProvider, outputWriter,
-                ">Description (optional):");
-        int servings = PromptUtils.promptInt(inputProvider, outputWriter,
-                ">How many servings will the recipe have?");
+        String name = promptRecipeName();
+        String description = promptRecipeDescription();
+        int servings = promptServingCount();
 
         double[] totals = new double[]{0, 0, 0, 0, 0};
-        List<RecipeItem> recipeItems = new ArrayList<>();
+        List<RecipeItem> items = gatherRecipeItems(totals);
 
+        Recipe recipe = buildRecipe(name, description, servings,
+                totals, items);
+        tracker.addItem(recipe);
+
+        showRecipeSummary(recipe);
+    }
+
+    private String promptRecipeName() {
+        return PromptUtils.promptLine(inputProvider, outputWriter,
+                ">Name:");
+    }
+
+    private String promptRecipeDescription() {
+        return PromptUtils.promptLine(inputProvider, outputWriter,
+                ">Description (optional):");
+    }
+
+    private int promptServingCount() {
+        return PromptUtils.promptInt(inputProvider, outputWriter,
+                ">How many servings will the recipe have?");
+    }
+
+    private List<RecipeItem> gatherRecipeItems(double[] totals) {
+        List<RecipeItem> items = new ArrayList<>();
         while (true) {
-            Food chosen = selectFood();
+            Food food = selectFood();
             double servingsUsed = promptSubServings();
 
-            recipeItems.add(new RecipeItem(chosen.name(), servingsUsed));
-            accumulateTotals(chosen, servingsUsed, totals);
+            items.add(new RecipeItem(food.name(), servingsUsed));
+            accumulateTotals(food, servingsUsed, totals);
 
             String more = PromptUtils.promptLine(inputProvider, outputWriter,
                     ">More? (yes/no)").toLowerCase();
@@ -46,45 +67,59 @@ public final class CreateRecipeCommand extends BaseMultiItemCommand {
                 break;
             }
         }
+        return items;
+    }
 
-        Recipe recipe = new Recipe(
-                name, description, servings,
-                totals[0], totals[1], totals[2], totals[3], totals[4],
-                recipeItems
-        );
-        tracker.addItem(recipe);
+    private Recipe buildRecipe(String name, String description, int servings,
+                               double[] totals, List<RecipeItem> items) {
+        return new Recipe(name, description, servings,
+                totals[0], totals[1], totals[2], totals[3], totals[4], items);
+    }
 
+    private void showRecipeSummary(Recipe recipe) {
         outputWriter.write("\n>Created Recipe: " + recipe.name());
         outputWriter.write("From:");
-        for (RecipeItem ri : recipe.items()) {
-            Food f = tracker.getFoods().stream()
-                    .filter(ff -> ff.name().equals(ri.foodName()))
-                    .findFirst()
-                    .orElse(null);
-            if (f != null) {
-                double totalUnits = f.unitsPerServing() * ri.servings();
-                outputWriter.write((int) ri.servings() + " x "
-                        + f.name()
-                        + " (" + totalUnits + " "
-                        + f.measurementType().label() + ")");
+
+        for (RecipeItem item : recipe.items()) {
+            Food food = tracker.getFoods().stream()
+                    .filter(f -> f.name().equals(item.foodName()))
+                    .findFirst().orElse(null);
+
+            if (food != null) {
+                double totalUnits = food.unitsPerServing() * item.servings();
+                outputWriter.write((int) item.servings() + " x "
+                        + food.name() + " (" + totalUnits + " "
+                        + food.measurementType().label() + ")");
             }
         }
 
         outputWriter.write("----------------------------------");
-        outputWriter.write("Total: "
-                + String.format("%.0f %s; %.0f kcal; %.2fg, %.2fg, %.2fg",
+        outputWriter.write("Total: " + formatRecipeSummary(recipe));
+    }
+
+    private String formatRecipeSummary(Recipe recipe) {
+        String unitLabel = resolveUnitLabel(recipe);
+        return String.format("%.0f %s; %.0f kcal; %.2fg, %.2fg, %.2fg",
                 recipe.totalGrams(),
-                recipe.items().isEmpty() ? "units"
-                        : tracker.getFoods().stream()
-                                .filter(f -> f.name()
-                                        .equals(recipe.items()
-                                                .get(0).foodName()))
-                                .map(f -> f.measurementType().label())
-                                .findFirst()
-                                .orElse("units"),
+                unitLabel,
                 recipe.totalCalories(),
                 recipe.totalCarbs(),
                 recipe.totalFat(),
-                recipe.totalProtein()));
+                recipe.totalProtein());
     }
+
+    private String resolveUnitLabel(Recipe recipe) {
+        if (recipe.items().isEmpty()) {
+            return "units";
+        }
+
+        String firstFoodName = recipe.items().get(0).foodName();
+
+        return tracker.getFoods().stream()
+                .filter(f -> f.name().equals(firstFoodName))
+                .map(f -> f.measurementType().label())
+                .findFirst()
+                .orElse("units");
+    }
+
 }
