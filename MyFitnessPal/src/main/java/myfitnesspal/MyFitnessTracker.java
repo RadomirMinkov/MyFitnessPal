@@ -1,5 +1,6 @@
 package myfitnesspal;
 
+import myfitnesspal.items.BodyMeasurement;
 import myfitnesspal.items.Food;
 import myfitnesspal.items.FoodLog;
 import myfitnesspal.items.Meal;
@@ -74,6 +75,12 @@ public final class MyFitnessTracker {
         return items.stream()
                 .filter(Recipe.class::isInstance)
                 .map(Recipe.class::cast)
+                .collect(Collectors.toList());
+    }
+    public List<BodyMeasurement> getBodyMeasurements() {
+        return items.stream()
+                .filter(BodyMeasurement.class::isInstance)
+                .map(BodyMeasurement.class::cast)
                 .collect(Collectors.toList());
     }
 }

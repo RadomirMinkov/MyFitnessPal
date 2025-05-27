@@ -39,7 +39,7 @@ public final class UserDatabase {
     public boolean login(String u, String p) {
         User usr = table.get(u);
         return usr != null
-                && usr.hash().equals(PasswordUtil.hash(usr.salt(), p));
+                && usr.getHash().equals(PasswordUtil.hash(usr.getSalt(), p));
     }
 
     private void load() {
@@ -66,8 +66,8 @@ public final class UserDatabase {
     private void save() {
         try (PrintWriter printWriter = new PrintWriter(new FileWriter(FILE))) {
             table.values().forEach(u ->
-                    printWriter.println(u.name() + ";"
-                            + u.salt() + ";" + u.hash()));
+                    printWriter.println(u.getName() + ";"
+                            + u.getSalt() + ";" + u.getHash()));
         } catch (IOException ignored) {
         }
     }

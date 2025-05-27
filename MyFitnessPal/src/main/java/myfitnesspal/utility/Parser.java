@@ -1,5 +1,7 @@
 package myfitnesspal.utility;
 
+import myfitnesspal.items.BodyMeasurement;
+import myfitnesspal.items.BodyMeasurementMetric;
 import myfitnesspal.items.Food;
 import myfitnesspal.items.FoodLog;
 import myfitnesspal.items.Meal;
@@ -14,14 +16,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class Parser {
 
     private Parser() {
         throw new UnsupportedOperationException("Utility class");
     }
-    private static final int FOOD_PARAMETERS = 8;
 
     private static final int FOOD_LOG_PARAMETERS = 8;
     public static Trackable parseLine(String line) {
@@ -39,8 +42,29 @@ public final class Parser {
             case "FOOD_LOG" -> parseFoodLog(data);
             case "MEAL" -> parseMeal(data);
             case "RECIPE" -> parseRecipe(data);
+            case "BM"      -> parseBodyMeasurement(data);
             default -> null;
         };
+    }
+    private static BodyMeasurement parseBodyMeasurement(String data) {
+        String[] parts = data.split(";");
+        if (parts.length < 4) {
+            throw new IllegalArgumentException("Invalid BM format");
+        }
+
+        LocalDate date = parseDate(parts[0]);
+        BodyMeasurementMetric metric = BodyMeasurementMetric.valueOf(parts[1]);
+        String unit = parts[2];
+
+        Map<String, Double> map = new HashMap<>();
+        for (int i = 3; i < parts.length; i++) {
+            String[] kv = parts[i].split("=");
+            if (kv.length != 2) {
+                throw new IllegalArgumentException("Invalid key=value");
+            }
+            map.put(kv[0], Double.parseDouble(kv[1]));
+        }
+        return new BodyMeasurement(date, metric, unit, map);
     }
     private static Recipe parseRecipe(String data) {
         String[] parts = data.split(";");

@@ -117,6 +117,23 @@ public enum CommandType {
             return new LogRecipeCommand(tracker,
                     inputProvider, outputWriter);
         }
+    },
+    LOG_BODY_MEASUREMENT("Log Body Measurement") {
+        @Override
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter) {
+            return new LogBodyMeasurementCommand(tracker,
+                    inputProvider, outputWriter);
+        }
+    },
+    MEASUREMENT_REPORT("Measurement report") {
+        public Command getCommand(MyFitnessTracker tracker,
+                                  InputProvider inputProvider,
+                                  OutputWriter outputWriter) {
+            return new LogBodyMeasurementCommand(tracker,
+                    inputProvider, outputWriter);
+        }
     };
 
     private final String description;

@@ -60,13 +60,13 @@ class ApplicationTest {
         String input = String.join("\n",
                 "2", "ivan", "123",
                 "1", "ivan", "123",
-                "14"
+                "16"
         );
         runAppWithInput(input);
         String out = testOut.toString();
         Assertions.assertTrue(out.contains("Registered"));
         Assertions.assertTrue(out.contains("1. Drink water"));
-        Assertions.assertTrue(out.contains("14. Exit"));
+        Assertions.assertTrue(out.contains("16. Exit"));
         Assertions.assertTrue(out.contains("Program stopped."));
     }
 
@@ -87,7 +87,7 @@ class ApplicationTest {
         String input = String.join("\n",
                 "2", "ivan", "pass",
                 "1", "2025-04-01", "2", "400",
-                "14"
+                "16"
         );
         runAppWithInput(input);
         String out = testOut.toString();
@@ -102,14 +102,14 @@ class ApplicationTest {
                 "2", "ivan", "1",
                 "1", "ivan", "1",
                 "1", "2025-01-01", "250",
-                "13",
+                "15",
                 "2", "maria", "2",
                 "1", "maria", "2",
                 "6", "2025-01-01",
-                "13",
+                "15",
                 "1", "ivan", "1",
                 "6", "2025-01-01",
-                "14"
+                "16"
         );
         runAppWithInput(input);
         String out = testOut.toString();

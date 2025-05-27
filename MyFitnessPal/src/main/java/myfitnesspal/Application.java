@@ -94,8 +94,8 @@ public final class Application {
             commands.put(String.valueOf(ct.ordinal() + 1), cmd);
         }
 
-        commands.put("13", new ChangeUserCommand(in, out, this::switchUser));
-        commands.put("14", new ExitCommand(this::stop,
+        commands.put("15", new ChangeUserCommand(in, out, this::switchUser));
+        commands.put("16", new ExitCommand(this::stop,
                 tracker, out, dataFile()));
     }
 
@@ -118,8 +118,8 @@ public final class Application {
             out.writeln(">" + i + ". " + ct.getDescription());
             i++;
         }
-        out.writeln(">13. Change User");
-        out.writeln(">14. Exit");
+        out.writeln(">15. Change User");
+        out.writeln(">16. Exit");
         out.write("-");
     }
 
