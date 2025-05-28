@@ -8,7 +8,7 @@ import myfitnesspal.items.Recipe;
 import myfitnesspal.items.Trackable;
 import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.FileManager;
-import myfitnesspal.utility.Parser;
+import myfitnesspal.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;

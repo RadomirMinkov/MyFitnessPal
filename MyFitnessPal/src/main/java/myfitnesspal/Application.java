@@ -1,9 +1,9 @@
 package myfitnesspal;
 
-import myfitnesspal.command.ChangeUserCommand;
-import myfitnesspal.command.Command;
-import myfitnesspal.command.CommandType;
-import myfitnesspal.command.ExitCommand;
+import myfitnesspal.commands.usercommands.ChangeUserCommand;
+import myfitnesspal.commands.Command;
+import myfitnesspal.commands.CommandType;
+import myfitnesspal.commands.ExitCommand;
 import myfitnesspal.users.AuthManager;
 import myfitnesspal.users.UserDatabase;
 import myfitnesspal.utility.InputProvider;
@@ -42,7 +42,10 @@ public final class Application {
 
     private void loginLoop() {
         while (currentUser == null) {
-            out.write(">1. Login\n>2. Register\n>3. Exit\n-");
+            out.write(">1. Login" + System.lineSeparator()
+                            + ">2. Register"
+                    + System.lineSeparator()
+                    + ">3. Exit" + System.lineSeparator() + "-");
             String choice = in.readLine().trim();
 
             if (choice.equals("3")) {

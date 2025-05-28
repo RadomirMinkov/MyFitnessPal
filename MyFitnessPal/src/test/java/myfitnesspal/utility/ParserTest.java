@@ -11,6 +11,7 @@ import myfitnesspal.items.Recipe;
 import myfitnesspal.items.RecipeItem;
 import myfitnesspal.items.Trackable;
 import myfitnesspal.items.WaterIntake;
+import myfitnesspal.parser.Parser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
