@@ -4,11 +4,10 @@ import myfitnesspal.items.FoodLog;
 import myfitnesspal.items.Trackable;
 
 final class FoodLogLineParser {
-    private FoodLogLineParser() { }
 
     private static final int PARAMS = 8;
 
-    static Trackable parse(String data) {
+    Trackable parse(String data) {
         String[] p = data.split(";");
         if (p.length != PARAMS) {
             throw new IllegalArgumentException("Too few arguments");

@@ -25,13 +25,13 @@ public final class UserDatabase {
         return table.containsKey(u);
     }
 
-    public boolean register(String u, String p) {
-        if (userExists(u)) {
+    public boolean register(String user, String p) {
+        if (userExists(user)) {
             return false;
         }
         String salt = PasswordUtil.newSalt();
         String hash = PasswordUtil.hash(salt, p);
-        table.put(u, new User(u, salt, hash));
+        table.put(user, new User(user, salt, hash));
         save();
         return true;
     }
@@ -39,7 +39,7 @@ public final class UserDatabase {
     public boolean login(String u, String p) {
         User usr = table.get(u);
         return usr != null
-                && usr.getHash().equals(PasswordUtil.hash(usr.getSalt(), p));
+                && usr.hash().equals(PasswordUtil.hash(usr.salt(), p));
     }
 
     private void load() {
@@ -66,8 +66,8 @@ public final class UserDatabase {
     private void save() {
         try (PrintWriter printWriter = new PrintWriter(new FileWriter(FILE))) {
             table.values().forEach(u ->
-                    printWriter.println(u.getName() + ";"
-                            + u.getSalt() + ";" + u.getHash()));
+                    printWriter.println(u.name() + ";"
+                            + u.salt() + ";" + u.hash()));
         } catch (IOException ignored) {
         }
     }

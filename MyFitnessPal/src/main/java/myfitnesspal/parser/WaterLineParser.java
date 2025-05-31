@@ -7,9 +7,8 @@ import myfitnesspal.items.WaterIntake;
 import java.time.LocalDate;
 
 final class WaterLineParser {
-    private WaterLineParser() { }
 
-    static Trackable parse(String data) {
+    Trackable parse(String data) {
         String[] p = data.split(";");
         if (p.length != 3) {
             throw new IllegalArgumentException("Invalid WATER format");

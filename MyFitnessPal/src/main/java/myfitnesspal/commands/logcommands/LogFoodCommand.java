@@ -49,7 +49,7 @@ public final class LogFoodCommand implements Command {
     }
 
     private Food chooseFood() {
-        List<Food> allFoods = tracker.getFoods();
+        List<Food> allFoods = tracker.getItems(Food.class);
         if (allFoods.isEmpty()) {
             throw new IllegalArgumentException(
                     "No foods in the system. Please create a food first.");

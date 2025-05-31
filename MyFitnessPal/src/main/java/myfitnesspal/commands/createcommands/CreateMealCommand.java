@@ -75,7 +75,7 @@ public final class CreateMealCommand extends BaseMultiItemCommand {
         outputWriter.write("From:");
 
         for (MealItem item : meal.items()) {
-            Food food = tracker.getFoods().stream()
+            Food food = tracker.getItems(Food.class).stream()
                     .filter(f -> f.name().equals(item.foodName()))
                     .findFirst().orElse(null);
 
@@ -93,7 +93,7 @@ public final class CreateMealCommand extends BaseMultiItemCommand {
 
     private String formatMealSummary(Meal meal) {
         String unitLabel = meal.items().isEmpty() ? "units"
-                : tracker.getFoods().stream()
+                : tracker.getItems(Food.class).stream()
                 .filter(f -> f.name().equals(meal.items().get(0).foodName()))
                 .map(f -> f.measurementType().label())
                 .findFirst().orElse("units");

@@ -5,9 +5,8 @@ import myfitnesspal.items.MeasurementType;
 import myfitnesspal.items.Trackable;
 
 final class FoodLineParser {
-    private FoodLineParser() { }
 
-    static Trackable parse(String data) {
+    Trackable parse(String data) {
         String[] p = data.split(";");
         if (p.length != 9) {
             throw new IllegalArgumentException("Invalid FOOD format");

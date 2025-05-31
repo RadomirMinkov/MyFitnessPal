@@ -12,11 +12,11 @@ import java.io.IOException;
 import java.util.List;
 
 public final class ChartFileUtils {
-    private ChartFileUtils() {
-        throw new UnsupportedOperationException();
+    public ChartFileUtils() {
+
     }
 
-    public static File generateLineChart(List<BodyMeasurement> data,
+    public File generateLineChart(List<BodyMeasurement> data,
                                          String title,
                                          String unit) {
         XYSeries s = new XYSeries(title, false);
@@ -33,7 +33,7 @@ public final class ChartFileUtils {
                 + "_" + System.currentTimeMillis() + ".png");
         try {
             ChartUtils.saveChartAsPNG(file, chart, 640, 480);
-        } catch (IOException ignored) { }
+        }   catch (IOException ignored) { }
         return file;
     }
 }

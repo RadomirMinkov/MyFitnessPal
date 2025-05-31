@@ -7,25 +7,26 @@ import myfitnesspal.items.Trackable;
 import java.util.ArrayList;
 import java.util.List;
 
-final class MealLineParser {
-    private MealLineParser() { }
+import static myfitnesspal.utility.Constants.MEAL_PARAMS;
 
-    static Trackable parse(String data) {
+final class MealLineParser {
+
+    Trackable parse(String data) {
         String[] p = data.split(";");
-        if (p.length < 8) {
+        if (p.length < MEAL_PARAMS) {
             throw new IllegalArgumentException("Too few arguments for MEAL");
         }
 
         int count = Integer.parseInt(p[7]);
-        if (p.length < 8 + count * 2) {
+        if (p.length < MEAL_PARAMS + count * 2) {
             throw new IllegalArgumentException(
                     "Invalid MEAL item count/format");
         }
 
-        List<MealItem> items = new ArrayList<>();
-        int idx = 8;
+        List<MealItem> mealItemList = new ArrayList<>();
+        int idx = MEAL_PARAMS;
         for (int i = 0; i < count; i++) {
-            items.add(new MealItem(p[idx++],
+            mealItemList.add(new MealItem(p[idx++],
                     Double.parseDouble(p[idx++])));
         }
 
@@ -36,6 +37,6 @@ final class MealLineParser {
                 Double.parseDouble(p[4]),
                 Double.parseDouble(p[5]),
                 Double.parseDouble(p[6]),
-                items);
+                mealItemList);
     }
 }

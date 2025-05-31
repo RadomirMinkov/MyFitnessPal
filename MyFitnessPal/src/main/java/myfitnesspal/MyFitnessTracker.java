@@ -1,12 +1,7 @@
 package myfitnesspal;
 
-import myfitnesspal.items.BodyMeasurement;
-import myfitnesspal.items.Food;
 import myfitnesspal.items.FoodLog;
-import myfitnesspal.items.Meal;
-import myfitnesspal.items.Recipe;
 import myfitnesspal.items.Trackable;
-import myfitnesspal.items.WaterIntake;
 import myfitnesspal.utility.FileManager;
 import myfitnesspal.parser.Parser;
 
@@ -16,13 +11,14 @@ import java.util.stream.Collectors;
 
 public final class MyFitnessTracker {
     private final List<Trackable> items = new ArrayList<>();
+    private final Parser parser = new Parser();
 
     public void load(String fileName) {
         List<String> lines = FileManager.loadRawLines(fileName);
         items.clear();
 
         for (String line : lines) {
-            Trackable t = Parser.parseLine(line);
+            Trackable t = parser.parseLine(line);
             if (t != null) {
                 items.add(t);
             }
@@ -40,47 +36,16 @@ public final class MyFitnessTracker {
     public void addItem(Trackable item) {
         items.add(item);
     }
-
-    public List<WaterIntake> getWaterIntakes() {
+    @SuppressWarnings("unchecked")
+    public <T extends Trackable> List<T> getItems(Class<T> type) {
         return items.stream()
-                .filter(WaterIntake.class::isInstance)
-                .map(WaterIntake.class::cast)
-                .collect(Collectors.toList());
-    }
-
-    public List<Food> getFoods() {
-        return items.stream()
-                .filter(Food.class::isInstance)
-                .map(Food.class::cast)
-                .collect(Collectors.toList());
-    }
-    public List<FoodLog> getFoodLogs() {
-        return items.stream()
-                .filter(FoodLog.class::isInstance)
-                .map(FoodLog.class::cast)
+                .filter(type::isInstance)
+                .map(t -> (T) t)
                 .collect(Collectors.toList());
     }
     public List<FoodLog> getFoodLogsForDate(java.time.LocalDate date) {
-        return getFoodLogs().stream()
+        return getItems(FoodLog.class).stream()
                 .filter(log -> log.date().equals(date))
-                .collect(Collectors.toList());
-    }
-    public List<Meal> getMeals() {
-        return items.stream()
-                .filter(Meal.class::isInstance)
-                .map(Meal.class::cast)
-                .collect(Collectors.toList());
-    }
-    public List<Recipe> getRecipes() {
-        return items.stream()
-                .filter(Recipe.class::isInstance)
-                .map(Recipe.class::cast)
-                .collect(Collectors.toList());
-    }
-    public List<BodyMeasurement> getBodyMeasurements() {
-        return items.stream()
-                .filter(BodyMeasurement.class::isInstance)
-                .map(BodyMeasurement.class::cast)
                 .collect(Collectors.toList());
     }
 }

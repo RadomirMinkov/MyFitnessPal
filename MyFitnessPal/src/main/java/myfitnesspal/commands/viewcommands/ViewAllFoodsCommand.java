@@ -21,7 +21,7 @@ public final class ViewAllFoodsCommand implements Command {
     public void execute() {
         outputWriter.write(">4. View All Foods");
 
-        List<Food> allFoods = tracker.getFoods();
+        List<Food> allFoods = tracker.getItems(Food.class);
         if (allFoods.isEmpty()) {
             outputWriter.write("No foods found.");
             return;

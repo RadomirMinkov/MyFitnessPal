@@ -49,7 +49,7 @@ public final class LogMealCommand implements Command {
     }
 
     private Meal pickMeal() {
-        List<Meal> allMeals = tracker.getMeals();
+        List<Meal> allMeals = tracker.getItems(Meal.class);
         if (allMeals.isEmpty()) {
             throw new IllegalArgumentException(
                     "No meals in the system. Please create a meal first.");
@@ -75,7 +75,7 @@ public final class LogMealCommand implements Command {
         for (MealItem mi : chosenMeal.items()) {
             double finalServings = mi.servings() * mealServings;
 
-            Food matchedFood = tracker.getFoods().stream()
+            Food matchedFood = tracker.getItems(Food.class).stream()
                     .filter(f -> f.name().equals(mi.foodName()))
                     .findFirst()
                     .orElseThrow(() ->

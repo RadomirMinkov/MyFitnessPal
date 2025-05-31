@@ -19,6 +19,7 @@ public final class MeasurementReportCommand implements Command {
     private final MyFitnessTracker tracker;
     private final InputProvider in;
     private final OutputWriter out;
+    private final ChartFileUtils chartFileUtils;
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
@@ -28,6 +29,7 @@ public final class MeasurementReportCommand implements Command {
         this.tracker = t;
         this.in = in;
         this.out = out;
+        this.chartFileUtils = new ChartFileUtils();
     }
 
     @Override
@@ -35,7 +37,8 @@ public final class MeasurementReportCommand implements Command {
         out.write(">14. Measurement reports:\n");
         BodyMeasurementMetric bodyMeasurementMetric = promptMetric();
         LocalDate[] range = promptRange();
-        List<BodyMeasurement> list = tracker.getBodyMeasurements().stream()
+        List<BodyMeasurement> list = tracker
+                .getItems(BodyMeasurement.class).stream()
                 .filter(bodyMeasurement ->
                         bodyMeasurement.metric() == bodyMeasurementMetric
                                 && !bodyMeasurement.date().isBefore(range[0])
@@ -45,7 +48,7 @@ public final class MeasurementReportCommand implements Command {
         print(list);
 
         if (!list.isEmpty()) {
-            var file = ChartFileUtils.generateLineChart(
+            var file = chartFileUtils.generateLineChart(
                     list, bodyMeasurementMetric
                             + " progress", list.get(0).unit());
             out.writeln("Chart saved: " + file.getAbsolutePath());
@@ -60,19 +63,19 @@ public final class MeasurementReportCommand implements Command {
 
     private LocalDate[] promptRange() {
         String t = PromptUtils.promptLine(in, out,
-                        ">What timeline?"
-                                + " (week, month or period d/m/y-d/m/y):")
+                        ">What timeline? (week, month or period d/m/y-d/m/y):")
                 .trim().toLowerCase();
         LocalDate now = LocalDate.now();
-        if (t.equals("week")) {
-            return new LocalDate[]{now.minusWeeks(1), now};
-        }
 
-        if (t.equals("month")) {
-            return new LocalDate[]{now.minusMonths(1), now};
-        }
-        String[] p = t.split("-");
-        return new LocalDate[]{Parser.parseDate(p[0]), Parser.parseDate(p[1])};
+        return switch (t) {
+            case "week"  -> new LocalDate[]{now.minusWeeks(1), now};
+            case "month" -> new LocalDate[]{now.minusMonths(1), now};
+            default -> {
+                String[] p = t.split("-");
+                yield new LocalDate[]{Parser.parseDate(p[0]),
+                        Parser.parseDate(p[1])};
+            }
+        };
     }
 
     private void print(List<BodyMeasurement> measurements) {

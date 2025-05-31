@@ -29,14 +29,28 @@ public final class LogBodyMeasurementCommand implements Command {
     @Override
     public void execute() {
         out.writeln(">13. Log body measurement:");
-        BodyMeasurementMetric bodyMeasurementMetric = promptMetric();
-        String unit = PromptUtils.promptLine(in, out,
-                ">Choose units of measure (cm, inch, kg):");
+        BodyMeasurementMetric metric = promptMetric();
+
+        String unit = switch (metric) {
+            case WEIGHT -> PromptUtils.promptLine(in, out, ">Choose unit (kg):")
+                    .toLowerCase();
+            case HIP, WAIST, THIGH, BICEPS -> PromptUtils.promptLine(in, out,
+                    ">Choose unit (cm or inch):").toLowerCase();
+        };
+
+        if (metric == BodyMeasurementMetric.WEIGHT && !unit.equals("kg")) {
+            throw new IllegalArgumentException("Weight must be in kg.");
+        }
+        if (metric != BodyMeasurementMetric.WEIGHT && !unit.equals("cm")
+                && !unit.equals("inch")) {
+            throw new IllegalArgumentException(
+                    "Only cm or inch are allowed for this metric.");
+        }
+
         LocalDate date = Parser.parseDate(
                 PromptUtils.promptLine(in, out, ">When (date):"));
-        Map<String, Double> vals = readValues(bodyMeasurementMetric);
-        tracker.addItem(new BodyMeasurement(date,
-                bodyMeasurementMetric, unit, vals));
+        Map<String, Double> vals = readValues(metric);
+        tracker.addItem(new BodyMeasurement(date, metric, unit, vals));
         out.writeln("Done!");
     }
 

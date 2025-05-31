@@ -7,23 +7,23 @@ import myfitnesspal.items.Trackable;
 import java.util.ArrayList;
 import java.util.List;
 
-final class RecipeLineParser {
-    private RecipeLineParser() { }
+import static myfitnesspal.utility.Constants.RECIPE_PARAMS;
 
-    static Trackable parse(String data) {
+final class RecipeLineParser {
+    Trackable parse(String data) {
         String[] p = data.split(";");
-        if (p.length < 10) {
+        if (p.length <= RECIPE_PARAMS) {
             throw new IllegalArgumentException("Too few arguments for RECIPE");
         }
 
         int count = Integer.parseInt(p[8]);
-        if (p.length < 9 + count * 2) {
+        if (p.length < RECIPE_PARAMS + count * 2) {
             throw new IllegalArgumentException(
                     "Invalid RECIPE item count/format");
         }
 
         List<RecipeItem> recipeItemList = new ArrayList<>();
-        int idx = 9;
+        int idx = RECIPE_PARAMS;
         for (int i = 0; i < count; i++) {
             recipeItemList.add(new RecipeItem(p[idx++],
                     Double.parseDouble(p[idx++])));

@@ -69,7 +69,7 @@ public final class ViewAllLoggedCommand implements Command {
         }
 
         List<WaterIntake> waterIntakes = tracker
-                .getWaterIntakes().stream()
+                .getItems(WaterIntake.class).stream()
                 .filter(w -> w.date().equals(date))
                 .toList();
 

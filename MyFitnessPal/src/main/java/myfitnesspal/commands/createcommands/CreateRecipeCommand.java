@@ -82,7 +82,7 @@ public final class CreateRecipeCommand extends BaseMultiItemCommand {
         outputWriter.write("From:");
 
         for (RecipeItem item : recipe.items()) {
-            Food food = tracker.getFoods().stream()
+            Food food = tracker.getItems(Food.class).stream()
                     .filter(f -> f.name().equals(item.foodName()))
                     .findFirst().orElse(null);
 
@@ -116,7 +116,7 @@ public final class CreateRecipeCommand extends BaseMultiItemCommand {
 
         String firstFoodName = recipe.items().get(0).foodName();
 
-        return tracker.getFoods().stream()
+        return tracker.getItems(Food.class).stream()
                 .filter(f -> f.name().equals(firstFoodName))
                 .map(f -> f.measurementType().label())
                 .findFirst()

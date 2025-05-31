@@ -47,7 +47,7 @@ public final class LogRecipeCommand implements Command {
     }
 
     private Recipe chooseRecipe() {
-        List<Recipe> allRecipes = tracker.getRecipes();
+        List<Recipe> allRecipes = tracker.getItems(Recipe.class);
         if (allRecipes.isEmpty()) {
             throw new IllegalArgumentException(
                     "No recipes available. Please create a recipe first.");
@@ -71,7 +71,7 @@ public final class LogRecipeCommand implements Command {
         for (RecipeItem ri : recipe.items()) {
             double finalServings = ri.servings() * servings;
 
-            Food matchedFood = tracker.getFoods().stream()
+            Food matchedFood = tracker.getItems(Food.class).stream()
                     .filter(f -> f.name().equals(ri.foodName()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException(

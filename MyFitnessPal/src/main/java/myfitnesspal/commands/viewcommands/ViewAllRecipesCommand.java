@@ -21,7 +21,7 @@ public final class ViewAllRecipesCommand implements Command {
     public void execute() {
         outputWriter.writeln(">11. View All Recipes");
 
-        List<Recipe> recipes = tracker.getRecipes();
+        List<Recipe> recipes = tracker.getItems(Recipe.class);
         if (recipes.isEmpty()) {
             outputWriter.writeln("No recipes found.");
             return;

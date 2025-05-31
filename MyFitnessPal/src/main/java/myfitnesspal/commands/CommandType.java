@@ -10,6 +10,7 @@ import myfitnesspal.commands.logcommands.LogFoodCommand;
 import myfitnesspal.commands.logcommands.LogMealCommand;
 import myfitnesspal.commands.logcommands.LogRecipeCommand;
 import myfitnesspal.commands.viewcommands.CheckWaterCommand;
+import myfitnesspal.commands.viewcommands.MeasurementReportCommand;
 import myfitnesspal.commands.viewcommands.ViewAllFoodsCommand;
 import myfitnesspal.commands.viewcommands.ViewAllLoggedCommand;
 import myfitnesspal.commands.viewcommands.ViewAllMealsCommand;
@@ -144,7 +145,7 @@ public enum CommandType {
         public Command getCommand(MyFitnessTracker tracker,
                                   InputProvider inputProvider,
                                   OutputWriter outputWriter) {
-            return new LogBodyMeasurementCommand(tracker,
+            return new MeasurementReportCommand(tracker,
                     inputProvider, outputWriter);
         }
     };

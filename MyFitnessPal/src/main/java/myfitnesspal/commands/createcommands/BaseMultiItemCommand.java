@@ -23,7 +23,7 @@ public abstract class BaseMultiItemCommand implements Command {
     }
 
     protected Food selectFood() {
-        List<Food> allFoods = tracker.getFoods();
+        List<Food> allFoods = tracker.getItems(Food.class);
         if (allFoods.isEmpty()) {
             throw new IllegalArgumentException(
                     "No foods in the system. Create a food first!");

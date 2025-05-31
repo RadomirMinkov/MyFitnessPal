@@ -29,7 +29,8 @@ public final class CheckWaterCommand implements Command {
         LocalDate date = Parser.parseDate(
                 PromptUtils.promptLine(input, output, ">When?"));
 
-        List<WaterIntake> sameDate = tracker.getWaterIntakes().stream()
+        List<WaterIntake> sameDate =
+                tracker.getItems(WaterIntake.class).stream()
                 .filter(w -> w.date().equals(date))
                 .toList();
 
